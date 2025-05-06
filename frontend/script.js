@@ -1,37 +1,37 @@
+// const BASE_URL = "http://localhost:1337";
+
+// let getData = async () => {
+//   let response = await fetch();
+//   let data = await response.json();
+//   return data;
+// };
 const BASE_URL = "http://localhost:1337";
 
-let getData = async (url) => {
-  let response = await fetch(url);
-  let data = await response.json();
-  console.log(data);
-  return data;
-};
-
 const renderBooks = async () => {
-  let books = await getData(`${BASE_URL}/api/books?populate=*`);
+  let response = await axios.get(`${BASE_URL}/api/books?populate=*`);
+  let books = response.data.data;
 
   let bookList = document.querySelector(".book-list");
   bookList.innerHTML = "";
 
-  books.data.forEach((data) => {
-    let attributes = data.attributes;
+  books.forEach((book) => {
+    let coverUrl = book.cover.formats.thumbnail.url;
 
-    let coverUrl = attributes.cover?.data?.attributes?.url
-      ? `${BASE_URL}${attributes.cover.data.attributes.url}`
-      : "images/placeholder.jpg";
-
-    let li = document.createElement("li");
-    li.className = "book-item";
-    li.innerHTML = `
-        <h3>${attributes.title}</h3>
-        <p>${data.author}</p>
-        <p>${data.length}</p>
-        <p>${data.release_date}</p>
-        <img src="${coverUrl}" alt="${data.title} cover" />
-        <p>${data.rating}</p>
-        <button class="delete" data-id="${data.id}">Delete</button>
-        `;
-    bookList.appendChild(li);
+    let div = document.createElement("div");
+    div.className = "book-item";
+    div.innerHTML = `
+      <h3 class="book-name">${book.title}</h3>
+      <p class="book-author">Author: ${book.author}</p>
+      <p class="book-length">Length:${book.length} sidor</p>
+      ${
+        coverUrl
+          ? `<img src="${BASE_URL}${coverUrl}" alt="${book.title} cover" width="100px" />`
+          : "<p>Ingen bild</p>"
+      }
+      <pclass="book-release-date">Date of Release: ${book.release_date}</p>
+      <p class="book-rating">Rating: ${book.rating ?? ""}</p>
+      `;
+    bookList.appendChild(div);
   });
 };
 
