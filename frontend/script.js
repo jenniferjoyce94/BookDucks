@@ -1,10 +1,3 @@
-// const BASE_URL = "http://localhost:1337";
-
-// let getData = async () => {
-//   let response = await fetch();
-//   let data = await response.json();
-//   return data;
-// };
 const BASE_URL = "http://localhost:1337";
 
 const renderBooks = async () => {
@@ -30,7 +23,7 @@ const renderBooks = async () => {
       }
       <pclass="book-release-date">Date of Release: ${book.release_date}</p>
       <p class="book-rating">Rating: ${book.rating ?? ""}</p>
-      `;
+      <button class="buy-button">Buy</button>`;
     bookList.appendChild(div);
   });
 };
