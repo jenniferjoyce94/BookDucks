@@ -1,0 +1,40 @@
+:root {
+  --main-bg-color: #fff;
+  --main-text-color: #000;
+  --main-head-color: #5e716a;
+  --main-header-color: #f0e0c1;
+  --main-font-family: comorant infant;
+  --main-font-size: 16px;
+}
+
+body {
+  margin: 0;
+}
+
+.header {
+  display: flex;
+  justify-content: space-around;
+  background-color: #f0e0c1;
+}
+
+h1 {
+  font-family: var(--main-font-family);
+  font-size: 2.5rem;
+  color: var(--main-head-color);
+}
+
+.containerMain {
+  display: flex;
+  margin: 5rem;
+  background-color: var(--main-header-color);
+}
+
+.book-item {
+  background-color: var(--main-bg-color);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  border-radius: 10px;
+  margin: 20px;
+}
