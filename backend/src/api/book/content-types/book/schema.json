@@ -36,6 +36,9 @@
     },
     "rating": {
       "type": "integer"
+    },
+    "price": {
+      "type": "integer"
     }
   }
 }

@@ -4,17 +4,10 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>BookDuck</title>
-    <script
-      src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.26.1/axios.min.js"
-      integrity="sha512-bPh3uwgU5qEMipS/VOmRqynnMXGGSRv+72H/N260MQeXZIK4PG48401Bsby9Nq5P5fz7hy5UGNmC/W1Z51h2GQ=="
-      crossorigin="anonymous"
-      referrerpolicy="no-referrer"
-    ></script>
     <script src="script.js" defer></script>
     <link rel="stylesheet" href="style.css" />
-    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.googleapis.com"><script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Infant:ital,wght@0,300..700;1,300..700&family=VT323&display=swap" rel="stylesheet">
 <script src="https://kit.fontawesome.com/96ad95103a.js" crossorigin="anonymous"></script>
   </head>
   <body>
@@ -25,14 +18,29 @@
         <h2> Your Next Great Read Starts Here</h2>
       </div>
       <div class="login">
-          <i class="fa-regular fa-user fa-xl" style="color: #000000;"></i>
-        <button id="login-btn">Log in</button>
+        <button id="login-btn">
+          <a href="#" id="open-modal-btn">
+            <i class="fa-regular fa-user fa-xl" style="color: #000000;"></i>
+          <span>Log in</span>
+          </a>
+        </button>
+      </div>
+      <div id="login-modal" class="modal hide">
+        <div class="modal-content">
+          <span class="close-modal-btn">&times;</span>
+          <h3>Log in</h3>
+          <form id="login-form">
+            <input type="text" id="username" name="username" required placeholder="username"/>
+            <input type="password" id="password" name="password" required placeholder="password"/>
+            <button class="login-btn-modal" onclick="login()">Log in</button>
+          </form>
+        </div>
       </div>
     </div>
     <main>
       <div class="container-main">
         <div class="book-list" id="book-list">
-           
+  
       </div>
     </main>
   </body>
