@@ -138,7 +138,8 @@ img {
   cursor: pointer;
 }
 
-#login-form {
+#login-form,
+#createAccountModal {
   display: flex;
   flex-direction: column;
   width: 300px;
@@ -146,11 +147,13 @@ img {
 }
 
 input[type="text"],
-input[type="password"] {
+input[type="password"],
+input[type="email"] {
   margin: 10px;
   height: 35px;
   border-radius: 10px;
   border: 1px solid var(--main-logo-color);
+  font-size: var(--main-font-size);
   padding: 5px;
 }
 
@@ -163,6 +166,7 @@ input[type="password"] {
   border-radius: 5px;
   margin: 10px;
   height: 35px;
+  padding: 10px;
 }
 .login-btn-modal:hover {
   background-color: var(--main-logo-color);

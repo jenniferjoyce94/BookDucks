@@ -21,7 +21,7 @@
         <button id="login-btn">
           <a href="#" id="open-modal-btn">
             <i class="fa-regular fa-user fa-xl" style="color: #000000;"></i>
-          <span>Log in</span>
+          <span id="login-text">Log in</span>
           </a>
         </button>
       </div>
@@ -32,7 +32,21 @@
           <form id="login-form">
             <input type="text" id="username" name="username" required placeholder="username"/>
             <input type="password" id="password" name="password" required placeholder="password"/>
-            <button class="login-btn-modal" onclick="login()">Log in</button>
+            <button class="login-btn-modal" type="submit">Log in</button>
+            <button class="login-btn-modal" id="createAccountBtn">Create Account</button>
+          </form>
+        </div>
+      </div>
+      <div id="createAccountModal" class="modal hide">
+        <div class="modal-content">
+          <span id="closeCreateAccountModal" class="close">&times;</span>
+          <h3>Register new user</h3>
+          <form id="createAccountForm">
+            <input type="text" id="new-username" name="new-username" required placeholder="username"/>
+            <input type="email" id="new-email" name="new-email" required placeholder="email"/>
+            <input type="password" id="new-password" name="new-password" required placeholder="password"/>
+            <button class="login-btn-modal" type="submit">Create Account</button>
+            <button class="login-btn-modal" id="cancelCreateAccountBtn">Cancel</button>
           </form>
         </div>
       </div>
