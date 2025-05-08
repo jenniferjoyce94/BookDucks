@@ -390,6 +390,7 @@ export interface ApiBookBook extends Struct.CollectionTypeSchema {
     locale: Schema.Attribute.String & Schema.Attribute.Private;
     localizations: Schema.Attribute.Relation<'oneToMany', 'api::book.book'> &
       Schema.Attribute.Private;
+    price: Schema.Attribute.Integer;
     publishedAt: Schema.Attribute.DateTime;
     rating: Schema.Attribute.Integer;
     release_date: Schema.Attribute.Date;

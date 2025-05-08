@@ -1,40 +1,179 @@
+* {
+  box-sizing: border-box;
+  font-family: var(--font-family);
+  margin: 0;
+  padding: 0;
+}
+.cormorant-garamond {
+  font-family: "Cormorant Garamond", serif;
+  font-optical-sizing: auto;
+  font-weight: 400;
+  font-style: normal;
+}
+
 :root {
   --main-bg-color: #fff;
   --main-text-color: #000;
-  --main-head-color: #5e716a;
-  --main-header-color: #f0e0c1;
-  --main-font-family: comorant infant;
+  --main-logo-color: #5e716a;
+  --main-container-color: #f2ddbe;
   --main-font-size: 16px;
+  --main-font-family: "cormorant-garamond", serif;
 }
 
 body {
   margin: 0;
+  padding: 0;
+  background-color: var(--main-bg-color);
 }
 
 .header {
   display: flex;
   justify-content: space-around;
-  background-color: #f0e0c1;
+  background-color: var(--main-container-color);
+  height: 9.5rem;
+}
+
+.header-container {
+  text-align: center;
+  padding: 1rem;
 }
 
 h1 {
-  font-family: var(--main-font-family);
-  font-size: 2.5rem;
-  color: var(--main-head-color);
+  font-size: 3rem;
+  color: var(--main-logo-color);
+  margin-top: 10px;
 }
-
-.containerMain {
-  display: flex;
+h2 {
+  font-style: italic;
+}
+.container-main {
+  background-color: var(--main-container-color);
+  padding: 2rem;
   margin: 5rem;
-  background-color: var(--main-header-color);
+  border-radius: 10px;
 }
 
 .book-item {
   background-color: var(--main-bg-color);
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
   border-radius: 10px;
   margin: 20px;
+  max-width: 240px;
+  height: 400px;
+  padding: 10px;
+  box-shadow: gray 0px 0px 10px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+}
+img {
+  border-radius: 10px;
+}
+.book-list {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.login {
+  display: flex;
+}
+
+#login-btn {
+  background-color: var(--main-header-color);
+  color: var(--main-text-color);
+  border: none;
+  font-size: var(--main-font-size);
+  cursor: pointer;
+  border-radius: 5px;
+}
+#login-btn:hover {
+  text-decoration: underline;
+}
+
+.buy-button {
+  background-color: var(--main-container-color);
+  color: var(--main-text-color);
+  border-radius: 5px;
+  width: 180px;
+  border: none;
+  padding: 5px;
+  cursor: pointer;
+}
+.buy-button:hover {
+  background-color: var(--main-logo-color);
+  color: var(--main-bg-color);
+}
+
+.modal {
+  display: none;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: var(--main-bg-color);
+  padding: 20px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  z-index: 1000;
+}
+
+.modal.show {
+  display: block;
+}
+
+.modal.hide {
+  display: none;
+}
+
+#open-modal-btn {
+  text-decoration: none;
+  background-color: var(--main-container-color);
+  color: var(--main-text-color);
+  border: none;
+  font-size: var(--main-font-size);
+  cursor: pointer;
+  border-radius: 5px;
+}
+
+.close-modal-btn .login-btn-modal {
+  cursor: pointer;
+}
+
+#login-form,
+#createAccountModal {
+  display: flex;
+  flex-direction: column;
+  width: 300px;
+  margin: 0 auto;
+}
+
+input[type="text"],
+input[type="password"],
+input[type="email"] {
+  margin: 10px;
+  height: 35px;
+  border-radius: 10px;
+  border: 1px solid var(--main-logo-color);
+  font-size: var(--main-font-size);
+  padding: 5px;
+}
+
+.login-btn-modal {
+  background-color: var(--main-container-color);
+  color: var(--main-text-color);
+  border: none;
+  font-size: var(--main-font-size);
+  cursor: pointer;
+  border-radius: 5px;
+  margin: 10px;
+  height: 35px;
+  padding: 10px;
+}
+.login-btn-modal:hover {
+  background-color: var(--main-logo-color);
+  color: var(--main-bg-color);
+}
+
+.star {
+  cursor: pointer;
+  color: var(--main-text-color);
 }
