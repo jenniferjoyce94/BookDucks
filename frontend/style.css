@@ -77,6 +77,9 @@ img {
 .login {
   display: flex;
 }
+#login-text {
+  margin-left: 10px;
+}
 
 #login-btn {
   background-color: var(--main-header-color);
@@ -84,7 +87,6 @@ img {
   border: none;
   font-size: var(--main-font-size);
   cursor: pointer;
-  border-radius: 5px;
 }
 #login-btn:hover {
   text-decoration: underline;
@@ -112,7 +114,8 @@ img {
   transform: translate(-50%, -50%);
   background-color: var(--main-bg-color);
   padding: 20px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 7px 8px rgba(0, 0, 0.2, 0.2);
+  border-radius: 10px;
   z-index: 1000;
 }
 
@@ -134,14 +137,18 @@ img {
   border-radius: 5px;
 }
 
-.close-modal-btn .login-btn-modal {
+.close-modal-btn,
+.login-btn-modal {
   cursor: pointer;
+}
+
+.modal-content {
+  display: flex;
+  flex-direction: column;
 }
 
 #login-form,
 #createAccountModal {
-  display: flex;
-  flex-direction: column;
   width: 300px;
   margin: 0 auto;
 }
@@ -152,6 +159,7 @@ input[type="email"] {
   margin: 10px;
   height: 35px;
   border-radius: 10px;
+  width: 90%;
   border: 1px solid var(--main-logo-color);
   font-size: var(--main-font-size);
   padding: 5px;
@@ -164,16 +172,52 @@ input[type="email"] {
   font-size: var(--main-font-size);
   cursor: pointer;
   border-radius: 5px;
+  width: 90%;
   margin: 10px;
   height: 35px;
   padding: 10px;
+  display: flex;
+  justify-content: center;
 }
 .login-btn-modal:hover {
   background-color: var(--main-logo-color);
   color: var(--main-bg-color);
 }
 
-.star {
+.welcome-message {
+  font-size: 1.5rem;
+  text-align: center;
+  margin: 20px;
+  margin: 20px;
+}
+
+.stars {
   cursor: pointer;
   color: var(--main-text-color);
+}
+
+.save-button {
+  background-color: var(--main-container-color);
+  color: var(--main-text-color);
+  border-radius: 5px;
+  width: 90%;
+  border: none;
+  padding: 10px;
+  cursor: pointer;
+}
+.save-button:hover {
+  background-color: var(--main-logo-color);
+  color: var(--main-bg-color);
+}
+
+.save-button .fa-heart {
+  transition: colo 0.3s ease;
+}
+
+#coverHeartContainer {
+  display: flex;
+}
+.heart-container {
+  margin-left: 10px;
+  cursor: pointer;
 }
