@@ -46,6 +46,13 @@ h1 {
 h2 {
   font-style: italic;
 }
+
+.logout-icon {
+  font-size: 1.5rem;
+  color: #333;
+  transition: color 0.3s ease;
+}
+
 .container-main {
   background-color: var(--main-container-color);
   padding: 2rem;
@@ -67,6 +74,7 @@ h2 {
 }
 img {
   border-radius: 10px;
+  margin-left: 25%;
 }
 .book-list {
   display: flex;
@@ -201,9 +209,6 @@ input[type="email"] {
   color: var(--main-text-color);
   border-radius: 5px;
   width: 90%;
-  border: none;
-  padding: 10px;
-  cursor: pointer;
 }
 .save-button:hover {
   background-color: var(--main-logo-color);
@@ -216,8 +221,10 @@ input[type="email"] {
 
 #coverHeartContainer {
   display: flex;
+  justify-content: center;
 }
 .heart-container {
-  margin-left: 10px;
+  margin-left: 25px;
+  font-size: 1.4rem;
   cursor: pointer;
 }

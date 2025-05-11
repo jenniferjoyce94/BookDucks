@@ -1,0 +1,30 @@
+{
+  "kind": "collectionType",
+  "collectionName": "book_ratings",
+  "info": {
+    "singularName": "book-rating",
+    "pluralName": "book-ratings",
+    "displayName": "BookRating",
+    "description": ""
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "attributes": {
+    "rating": {
+      "type": "integer"
+    },
+    "book": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::book.book",
+      "inversedBy": "book_ratings"
+    },
+    "users_permissions_user": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "plugin::users-permissions.user",
+      "inversedBy": "book_ratings"
+    }
+  }
+}

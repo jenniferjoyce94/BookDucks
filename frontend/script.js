@@ -1,4 +1,4 @@
-const openModal = document.querySelector("#open-modal-btn");
+const openModalBtn = document.querySelector("#open-modal-btn");
 const closeModal = document.querySelector(".close-modal-btn");
 const loginModal = document.querySelector("#login-modal");
 const loginText = document.querySelector("#login-text");
@@ -12,6 +12,7 @@ const createAccountBtn = document.querySelector("#createAccountBtn");
 const cancelCreateAccountBtn = document.querySelector(
   "#cancelCreateAccountBtn"
 );
+const removeBookBtn = document.querySelector("#removeBookBtn");
 
 const BASE_URL = "http://localhost:1337";
 
@@ -20,12 +21,115 @@ function showModal(modal) {
   modal?.classList.remove("hide");
 }
 
+function userLogin(userData) {
+  if (userData) {
+    const capitalUsername =
+      userData.username.charAt(0).toUpperCase() + userData.username.slice(1);
+
+    const welcomeMessage = document.querySelector("#welcome-message");
+    if (welcomeMessage) {
+      welcomeMessage.innerHTML = `Welcome ${capitalUsername}`;
+    }
+
+    loginText.innerHTML = `Your Profile`;
+    loginText.style.cursor = "pointer";
+
+    if (!document.querySelector(".logout-icon")) {
+      addLogutBtn();
+    }
+  }
+}
+
+function addLogutBtn() {
+  const logoutIcon = document.createElement("i");
+  logoutIcon.className = "fa-solid fa-door-open logout-icon";
+  logoutIcon.style.cursor = "pointer";
+  logoutIcon.style.marginLeft = "10px";
+  loginText.parentElement.appendChild(logoutIcon);
+
+  logoutIcon.addEventListener("click", handleLogout);
+}
+
+function handleLogout() {
+  localStorage.removeItem("jwt");
+  alert("You have been logged out.");
+  loginText.innerHTML = "Login";
+  loginText.style.cursor = "pointer";
+  const welcomeMessage = document.querySelector("#welcome-message");
+  if (welcomeMessage) {
+    welcomeMessage.innerHTML = "";
+  }
+  const logoutIcon = document.querySelector(".logout-icon");
+  if (logoutIcon) {
+    logoutIcon.remove();
+  }
+  renderBooks();
+}
+
+document.addEventListener("DOMContentLoaded", async () => {
+  await updateLogionStatus();
+  const userData = await getMe();
+  if (userData) {
+    renderProfile();
+  }
+});
+
 function hideModal(modal) {
-  console.log("event");
-  console.log(modal);
   modal?.classList.remove("show");
   modal?.classList.add("hide");
 }
+
+function openLogionModal(e) {
+  e.preventDefault();
+  showModal(loginModal);
+}
+
+async function updateLogionStatus() {
+  const userData = await getMe();
+  if (userData) {
+    handleLogin(userData);
+  } else {
+    handleLogout();
+  }
+}
+
+openModalBtn.addEventListener("click", (e) => {
+  const token = localStorage.getItem("jwt");
+  if (!token) {
+    openLogionModal(e);
+    e.preventDefault();
+    return;
+  }
+
+  renderProfile();
+});
+
+closeModal.addEventListener("click", () => hideModal(loginModal));
+
+createAccountBtn.addEventListener("click", (e) => {
+  e.preventDefault();
+  hideModal(loginModal);
+  showModal(createAccountModal);
+});
+
+cancelCreateAccountBtn.addEventListener("click", (e) => {
+  e.preventDefault();
+  hideModal(createAccountModal);
+});
+
+closeCreateAccountModal.addEventListener("click", () => {
+  hideModal(createAccountModal);
+});
+
+closeModal.addEventListener("click", () => {
+  hideModal(loginModal);
+});
+
+createAccountBtn.addEventListener("click", (e) => {
+  e.preventDefault();
+  hideModal(loginModal);
+  showModal(createAccountModal);
+});
 
 const renderBooks = async () => {
   try {
@@ -42,16 +146,12 @@ const renderBooks = async () => {
       div.className = "book-item";
       div.dataset.id = book.id;
       div.innerHTML = `
-      <div id="coverHeartContainer">
         ${
           coverUrl
             ? `<img src="${BASE_URL}${coverUrl}" alt="${book.title} cover" width="100px" />`
             : "<p>Ingen bild</p>"
         }
-        <div class="heart-container">
-          <i class="fa-regular fa-heart"></i>
-        </div>
-      </div>
+
         <h3 class="book-name">${book.title}</h3>
         <h4 class="book-author">${book.author}</h4>
         <p class="book-release-date">Date of Release: ${book.release_date}</p>
@@ -75,37 +175,12 @@ const renderBooks = async () => {
   }
 };
 
-// Show and hide modal
-openModal.addEventListener("click", (e) => {
-  e.preventDefault();
-  showModal(loginModal);
-});
-
-closeModal.addEventListener("click", () => {
-  hideModal(loginModal);
-});
-
-createAccountBtn.addEventListener("click", (e) => {
-  e.preventDefault();
-  hideModal(loginModal);
-  showModal(createAccountModal);
-});
-
-cancelCreateAccountBtn.addEventListener("click", (e) => {
-  e.preventDefault();
-  hideModal(createAccountModal);
-});
-
-closeCreateAccountModal.addEventListener("click", () => {
-  hideModal(createAccountModal);
-});
-
 // Handle login form submission
 loginForm.addEventListener("submit", async (e) => {
   e.preventDefault();
 
-  const username = document.querySelector("#username").value;
-  const password = document.querySelector("#password").value;
+  const username = document.querySelector("#username").value.trim();
+  const password = document.querySelector("#password").value.trim();
 
   if (!username || !password) {
     alert("Please fill in all fields.");
@@ -119,37 +194,125 @@ loginForm.addEventListener("submit", async (e) => {
   try {
     let response = await axios.post(`${BASE_URL}/api/auth/local`, {
       identifier: username,
-      password: password,
+      password,
     });
     const token = response.data.jwt;
     alert("Login successful!");
     localStorage.setItem("jwt", token);
 
-    const capitalUsername =
-      response.data.user.username.charAt(0).toUpperCase() +
-      response.data.user.username.slice(1);
+    // <div id="coverHeartContainer">
+    // <div class="heart-container">
+    // <i class="fa-regular fa-heart"></i>
+    // </div>
 
-    const welcomeMessage = document.querySelector("#welcome-message");
-    welcomeMessage.innerHTML = `Welcome ${capitalUsername}`;
-    welcomeMessage.style.display = "block";
-
-    loginText.innerHTML = `Logout`;
-    loginText.style.display = "block";
-    loginText.style.cursor = "pointer";
-    loginText.addEventListener("click", () => {
-      localStorage.removeItem("jwt");
-      loginText.innerHTML = `Login`;
-      loginText.style.cursor = "pointer";
-      alert("Logged out successfully!");
-    });
-
+    handleLogin(response.data.user);
     hideModal(loginModal);
-    console.log(response.data);
   } catch (error) {
     console.error("Error logging in:", error);
     alert("Login failed.");
   }
 });
+
+const renderProfile = async () => {
+  const token = localStorage.getItem("jwt");
+  if (!token) {
+    return;
+  }
+  try {
+    const user = await getMe();
+    console.log("User data:", user);
+    const savedBooks = user.savedBooks ?? [];
+
+    const profileContainer = document.querySelector(".container-main");
+    profileContainer.innerHTML = `
+      <h2>Your Profile </h2>
+           <button id="back-to-books" class="back-button">
+          Back to All Books
+        </button>
+      <ul class="saved-books">
+        <h3>Saved Books</h3>
+         <div>
+        <label>Sort by:</label>
+        <select id="sort-books">
+          <option value="">Options</option>
+          <option value="title">Title</option>
+          <option value="author">Author</option>
+        </select>
+      </div>
+      <ul id="saved-books-list" class="saved-books">
+        ${savedBooks.length === 0 ? "<p>No saved books</p>" : ""}
+        ${savedBooks.length > 0 ? "<h3>Saved Books</h3>" : ""}
+        ${savedBooks
+          .map(
+            (book) =>
+              `<li>${book.title}</li>
+           <p>${book.author}</p>
+           <button class="rate-book" data-id="${book.id}">Rate</button>
+           <div class="rating">
+           <i class="fa-regular fa-star" data-value="1"></i>
+           <i class="fa-regular fa-star" data-value="2"></i>
+           <i class="fa-regular fa-star" data-value="3"></i>
+           <i class="fa-regular fa-star" data-value="4"></i>
+           <i class="fa-regular fa-star" data-value="5"></i>
+           </div>
+           <button class="remove-book" data-id="${book.id}">Remove</button>
+           <button class="buy-book" data-id="${book.id}">Buy</button>
+           `
+          )
+          .join("")}
+      </ul>
+    `;
+    document.getElementById("back-to-books").addEventListener("click", () => {
+      profileContainer.innerHTML = `
+        <div id="welcome-message" class="welcome-message"></div>
+        <div class="book-list" id="book-list"></div>
+      `;
+
+      renderBooks();
+      updateLogionStatus();
+    });
+
+    if (savedBooks.length > 0) {
+      document.querySelector(".remove-book").addEventListener("click", (e) => {
+        btn.addEventListener("click", async (e) => {
+          e.preventDefault();
+          const bookId = e.target.dataset.id;
+          try {
+            await axios.delete(
+              `${BASE_URL}/api/users/me/toReadList/${bookId}`,
+              {
+                headers: { Authorization: `Bearer ${token}` },
+              }
+            );
+            alert("Book removed from favorites!");
+            renderProfile();
+          } catch (error) {
+            console.error("Error removing book:", error);
+            alert("Failed to remove book.");
+          }
+        });
+      });
+
+      document.querySelector(".sort-books").addEventListener("change", (e) => {
+        const sortBy = e.target.value;
+        const sortedBooks = Array.from(
+          document.querySelectorAll(".saved-books li")
+        );
+        sortedBooks.sort((a, b) => {
+          a.dataset[sortBy].localeCompare(b.dataset[sortBy]);
+        });
+        const ul = document.querySelector("#saved-books-list");
+        ul.innerHTML = "";
+        sortedBooks.forEach((li) => {
+          ul.appendChild(li);
+        });
+      });
+    }
+  } catch (error) {
+    console.error("Error fetching profile:", error);
+    // alert("Failed to load profile.");
+  }
+};
 
 createAccountForm.addEventListener("submit", async (e) => {
   e.preventDefault();
@@ -176,15 +339,7 @@ createAccountForm.addEventListener("submit", async (e) => {
     const token = response.data.jwt;
     localStorage.setItem("jwt", token);
 
-    const capitalUsername =
-      response.data.user.username.charAt(0).toUpperCase() +
-      response.data.user.username.slice(1);
-
-    loginText.innerHTML = `Welcome ${capitalUsername}`;
-    loginText.style.display = "block";
     hideModal(createAccountModal);
-
-    console.log(response.data);
   } catch (error) {
     console.error("Error creating account:", error);
     if (error.response && error.response.status === 400) {
@@ -220,7 +375,6 @@ document.addEventListener("click", async (e) => {
     }
   }
 
-  // Handle book purchase
   if (e.target.classList.contains("buy-button")) {
     const bookItem = e.target.closest(".book-item");
     const bookId = bookItem.dataset.id;
@@ -269,3 +423,103 @@ document.addEventListener("click", async (e) => {
 });
 
 renderBooks();
+
+async function getMe() {
+  const token = localStorage.getItem("jwt");
+  if (!token) {
+    return null; // Return null if no token is found
+  }
+
+  try {
+    const response = await axios.get(
+      `${BASE_URL}/api/users/me?populate=savedBooks`,
+      {
+        headers: { Authorization: `Bearer ${token}` },
+      }
+    );
+    return response.data; // Return the user data
+  } catch (error) {
+    console.error("Error fetching user data:", error);
+    alert("Failed to load user data.");
+    return null; // Return null in case of an error
+  }
+}
+
+async function updateSavedBooks(userId, bookIds) {
+  const token = localStorage.getItem("jwt");
+  if (!token) {
+    alert("Please log in to save books.");
+    return null; // Return null if no token is found
+  }
+
+  try {
+    const response = await axios.put(
+      `${BASE_URL}/api/users/${userId}`,
+      {
+        savedBooks: bookIds,
+      },
+      {
+        headers: { Authorization: `Bearer ${token}` },
+      }
+    );
+
+    return response.data; // Return the updated user data
+  } catch (error) {
+    alert("Failed to update saved books.");
+    return null; // Return null in case of an error
+  }
+}
+
+async function updateBookRating(bookname, rating) {
+  const token = localStorage.getItem("jwt");
+  if (!token) {
+    alert("Please log in to rate books.");
+    return null;
+  }
+
+  try {
+    const userData = await getMe();
+    if (!userData) {
+      throw new Error("Could not fetch current user data");
+    }
+
+    // Get existing ratings or initialize empty array
+    const existingRatings = userData.bookRatings || [];
+
+    // Check if this book already has a rating
+    const existingRatingIndex = existingRatings.findIndex(
+      (item) => item.bookname === bookname
+    );
+
+    let updatedRatings;
+    if (existingRatingIndex >= 0) {
+      // Update existing rating
+      updatedRatings = [...existingRatings];
+      updatedRatings[existingRatingIndex] = {
+        ...updatedRatings[existingRatingIndex],
+        rating,
+      };
+    } else {
+      // Add new rating
+      updatedRatings = [...existingRatings, { bookname, rating }];
+    }
+
+    // Send the complete updated array to the server
+    const response = await axios.put(
+      `${BASE_URL}/api/users/${userData.id}`,
+      {
+        bookRatings: updatedRatings,
+      },
+      {
+        headers: { Authorization: `Bearer ${token}` },
+      }
+    );
+
+    console.log("Book rating updated successfully!");
+    return response.data;
+  } catch (error) {
+    console.error("Error updating book rating:", error);
+    alert("Failed to update book rating.");
+    return null;
+  }
+}
