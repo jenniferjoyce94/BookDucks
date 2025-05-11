@@ -21,7 +21,7 @@ function showModal(modal) {
   modal?.classList.remove("hide");
 }
 
-function userLogin(userData) {
+function handleLogin(userData) {
   if (userData) {
     const capitalUsername =
       userData.username.charAt(0).toUpperCase() + userData.username.slice(1);
@@ -36,6 +36,9 @@ function userLogin(userData) {
 
     if (!document.querySelector(".logout-icon")) {
       addLogutBtn();
+    }
+    if (!document.querySelector(".book-icon")) {
+      backToBooks();
     }
   }
 }
@@ -55,6 +58,7 @@ function handleLogout() {
   alert("You have been logged out.");
   loginText.innerHTML = "Login";
   loginText.style.cursor = "pointer";
+
   const welcomeMessage = document.querySelector("#welcome-message");
   if (welcomeMessage) {
     welcomeMessage.innerHTML = "";
@@ -62,6 +66,10 @@ function handleLogout() {
   const logoutIcon = document.querySelector(".logout-icon");
   if (logoutIcon) {
     logoutIcon.remove();
+  }
+  const bookIcon = document.querySelector(".book-icon-container");
+  if (bookIcon) {
+    bookIcon.remove();
   }
   renderBooks();
 }
@@ -88,20 +96,22 @@ async function updateLogionStatus() {
   const userData = await getMe();
   if (userData) {
     handleLogin(userData);
+    backToBooks(userData);
   } else {
-    handleLogout();
+    loginText.innerHTML = "Login";
+    loginText.style.cursor = "pointer";
   }
 }
 
 openModalBtn.addEventListener("click", (e) => {
-  const token = localStorage.getItem("jwt");
-  if (!token) {
-    openLogionModal(e);
-    e.preventDefault();
-    return;
+  if (e.target.id === "login-text" || e.target.closest("#login-text")) {
+    const token = localStorage.getItem("jwt");
+    if (!token) {
+      openLogionModal(e);
+      return;
+    }
+    renderProfile();
   }
-
-  renderProfile();
 });
 
 closeModal.addEventListener("click", () => hideModal(loginModal));
@@ -131,10 +141,64 @@ createAccountBtn.addEventListener("click", (e) => {
   showModal(createAccountModal);
 });
 
-const renderBooks = async () => {
+function backToBooks(userData) {
+  if (!userData) {
+    return;
+  }
+  if (!document.querySelector(".book-icon-container")) {
+    const bookIconContainer = document.createElement("div");
+    bookIconContainer.className = "book-icon-container";
+    bookIconContainer.style.display = "flex";
+    bookIconContainer.style.alignItems = "center";
+    bookIconContainer.style.cursor = "pointer";
+    bookIconContainer.style.marginLeft = "10px";
+
+    const bookIcon = document.createElement("i");
+    bookIcon.className = "fa-solid fa-book book-icon";
+    bookIcon.style.marginRight = "5px";
+
+    // Create text label
+    const bookText = document.createElement("span");
+    bookText.textContent = "View All Books";
+    bookText.className = "book-text";
+    bookText.style.fontSize = "0.9rem";
+
+    // Add icon and text to container
+    bookIconContainer.appendChild(bookIcon);
+    bookIconContainer.appendChild(bookText);
+
+    // Add to the DOM
+    const loginSection = loginText.parentElement;
+    loginSection.appendChild(bookIconContainer);
+
+    // Add click event to the container
+    bookIconContainer.addEventListener("click", () => {
+      const profileContainer = document.querySelector(".container-main");
+      const isUser = document.querySelector(".saved-books");
+      if (isUser) {
+        profileContainer.innerHTML = `
+              <div id="welcome-message" class="welcome-message"></div>
+              <div class="book-list" id="book-list"></div>
+            `;
+        renderBooks();
+      } else {
+        renderProfile();
+      }
+      updateLogionStatus();
+    });
+  }
+}
+
+const renderBooks = async (userData) => {
   try {
     let response = await axios.get(`${BASE_URL}/api/books?populate=*`);
     let books = response.data.data;
+
+    const mainContainer = document.querySelector(".container-main");
+    mainContainer.innerHTML = `
+      <div id="welcome-message" class="welcome-message"></div>
+      <div class="book-list" id="book-list"></div>
+    `;
 
     let bookList = document.querySelector(".book-list");
     bookList.innerHTML = "";
@@ -142,15 +206,33 @@ const renderBooks = async () => {
     books.forEach((book) => {
       let coverUrl = book.cover.formats.thumbnail.url;
 
+      const isLoggedIn = localStorage.getItem("jwt");
+      const isSaved =
+        userData &&
+        userData.savedBooks &&
+        userData.savedBooks.some((savedBook) => savedBook.id === book.id);
+
       let div = document.createElement("div");
       div.className = "book-item";
       div.dataset.id = book.id;
-      div.innerHTML = `
+      div.innerHTML = ` 
+        <div class="heart-container">
         ${
           coverUrl
             ? `<img src="${BASE_URL}${coverUrl}" alt="${book.title} cover" width="100px" />`
             : "<p>Ingen bild</p>"
         }
+        ${
+          isLoggedIn
+            ? `
+            <div class="heart-container">
+              <i class="fa-${
+                isSaved ? "solid" : "regular"
+              } fa-heart" title="Save to favorites"></i>
+            </div>`
+            : ""
+        }
+        </div>
 
         <h3 class="book-name">${book.title}</h3>
         <h4 class="book-author">${book.author}</h4>
@@ -169,6 +251,7 @@ const renderBooks = async () => {
         <button class="buy-button">Buy</button>`;
       bookList.appendChild(div);
     });
+    updateLogionStatus();
   } catch (error) {
     console.error("Error fetching books:", error);
     alert("Failed to load books.");
@@ -207,6 +290,7 @@ loginForm.addEventListener("submit", async (e) => {
 
     handleLogin(response.data.user);
     hideModal(loginModal);
+    renderBooks();
   } catch (error) {
     console.error("Error logging in:", error);
     alert("Login failed.");
@@ -225,55 +309,45 @@ const renderProfile = async () => {
 
     const profileContainer = document.querySelector(".container-main");
     profileContainer.innerHTML = `
-      <h2>Your Profile </h2>
-           <button id="back-to-books" class="back-button">
-          Back to All Books
-        </button>
-      <ul class="saved-books">
-        <h3>Saved Books</h3>
-         <div>
-        <label>Sort by:</label>
-        <select id="sort-books">
-          <option value="">Options</option>
-          <option value="title">Title</option>
-          <option value="author">Author</option>
-        </select>
-      </div>
-      <ul id="saved-books-list" class="saved-books">
-        ${savedBooks.length === 0 ? "<p>No saved books</p>" : ""}
-        ${savedBooks.length > 0 ? "<h3>Saved Books</h3>" : ""}
-        ${savedBooks
-          .map(
-            (book) =>
-              `<li>${book.title}</li>
-           <p>${book.author}</p>
-           <button class="rate-book" data-id="${book.id}">Rate</button>
-           <div class="rating">
-           <i class="fa-regular fa-star" data-value="1"></i>
-           <i class="fa-regular fa-star" data-value="2"></i>
-           <i class="fa-regular fa-star" data-value="3"></i>
-           <i class="fa-regular fa-star" data-value="4"></i>
-           <i class="fa-regular fa-star" data-value="5"></i>
-           </div>
-           <button class="remove-book" data-id="${book.id}">Remove</button>
-           <button class="buy-book" data-id="${book.id}">Buy</button>
-           `
-          )
-          .join("")}
-      </ul>
-    `;
-    document.getElementById("back-to-books").addEventListener("click", () => {
-      profileContainer.innerHTML = `
         <div id="welcome-message" class="welcome-message"></div>
-        <div class="book-list" id="book-list"></div>
+        <h2>Your Profile </h2>
+        <div>
+          <label>Sort by:</label>
+          <select id="sort-books">
+            <option value="">Options</option>
+            <option value="title">Title</option>
+            <option value="author">Author</option>
+          </select>
+        </div>
+        <ul id="saved-books-list" class="saved-books">
+          ${savedBooks.length === 0 ? "<p>No saved books</p>" : ""}
+          ${savedBooks.length > 0 ? "<h3>Saved Books</h3>" : ""}
+          ${savedBooks
+            .map(
+              (book) =>
+                `<li>${book.title}</li>
+             <p>${book.author}</p>
+             <button class="rate-book" data-id="${book.id}">Rate</button>
+             <div class="rating">
+             <i class="fa-regular fa-star" data-value="1"></i>
+             <i class="fa-regular fa-star" data-value="2"></i>
+             <i class="fa-regular fa-star" data-value="3"></i>
+             <i class="fa-regular fa-star" data-value="4"></i>
+             <i class="fa-regular fa-star" data-value="5"></i>
+             </div>
+             <button class="remove-book" data-id="${book.id}">Remove</button>
+             <button class="buy-book" data-id="${book.id}">Buy</button>
+             `
+            )
+            .join("")}
+        </ul>
       `;
 
-      renderBooks();
-      updateLogionStatus();
-    });
+    updateLogionStatus();
 
     if (savedBooks.length > 0) {
-      document.querySelector(".remove-book").addEventListener("click", (e) => {
+      // Fix: Add event listeners to ALL remove buttons
+      document.querySelectorAll(".remove-book").forEach((btn) => {
         btn.addEventListener("click", async (e) => {
           e.preventDefault();
           const bookId = e.target.dataset.id;
@@ -293,13 +367,14 @@ const renderProfile = async () => {
         });
       });
 
-      document.querySelector(".sort-books").addEventListener("change", (e) => {
+      // Fix: Correct selector for sort-books (use ID)
+      document.querySelector("#sort-books").addEventListener("change", (e) => {
         const sortBy = e.target.value;
         const sortedBooks = Array.from(
           document.querySelectorAll(".saved-books li")
         );
         sortedBooks.sort((a, b) => {
-          a.dataset[sortBy].localeCompare(b.dataset[sortBy]);
+          return a.dataset[sortBy].localeCompare(b.dataset[sortBy]); // Add return statement
         });
         const ul = document.querySelector("#saved-books-list");
         ul.innerHTML = "";
@@ -310,7 +385,7 @@ const renderProfile = async () => {
     }
   } catch (error) {
     console.error("Error fetching profile:", error);
-    // alert("Failed to load profile.");
+    alert("Failed to load profile.");
   }
 };
 
@@ -339,7 +414,9 @@ createAccountForm.addEventListener("submit", async (e) => {
     const token = response.data.jwt;
     localStorage.setItem("jwt", token);
 
+    handleLogin(response.data.user);
     hideModal(createAccountModal);
+    renderProfile();
   } catch (error) {
     console.error("Error creating account:", error);
     if (error.response && error.response.status === 400) {
@@ -399,8 +476,9 @@ document.addEventListener("click", async (e) => {
   }
 
   if (e.target.classList.contains("fa-heart")) {
-    const button = e.target.closest(".fa-heart");
+    const heartIcon = e.target.closest(".fa-heart");
     const bookItem = button.closest(".book-item");
+    const bookId = bookItem.dataset.id;
 
     const token = localStorage.getItem("jwt");
     if (!token) {
@@ -408,21 +486,31 @@ document.addEventListener("click", async (e) => {
       return;
     }
     try {
-      await axios.post(
-        `${BASE_URL}/api/users/me/favorites`,
-        { bookId },
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-      e.target.classList.add("addedHeart");
-      alert("Book added to favorites!");
+      if (heartIcon.classList.contains("fa-solid")) {
+        await axios.delete(`${BASE_URL}/api/users/me/favorites/${bookId}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+
+        heartIcon.classList.remove("fa-solid");
+        heartIcon.classList.add("fa-regular");
+        alert("Book removed from favorites!");
+      } else {
+        await axios.post(
+          `${BASE_URL}/api/users/me/favorites`,
+          { bookId },
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+
+        heartIcon.classList.remove("fa-regular");
+        heartIcon.classList.add("fa-solid");
+        alert("Book added to favorites!");
+      }
     } catch (error) {
-      console.error("Error adding book to favorites:", error);
-      alert("Failed to add book to favorites.");
+      console.error("Error updating favorites:", error);
+      alert("Failed to update favorites.");
     }
   }
 });
-
-renderBooks();
 
 async function getMe() {
   const token = localStorage.getItem("jwt");
@@ -523,3 +611,5 @@ async function updateBookRating(bookname, rating) {
     return null;
   }
 }
+
+renderBooks();
