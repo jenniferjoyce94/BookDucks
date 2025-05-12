@@ -34,17 +34,20 @@
         "audios"
       ]
     },
-    "rating": {
-      "type": "integer"
-    },
     "price": {
       "type": "integer"
     },
-    "book_ratings": {
+    "bookRatings": {
       "type": "relation",
       "relation": "oneToMany",
       "target": "api::book-rating.book-rating",
       "mappedBy": "book"
+    },
+    "users": {
+      "type": "relation",
+      "relation": "manyToMany",
+      "target": "plugin::users-permissions.user",
+      "mappedBy": "savedBooks"
     }
   }
 }
