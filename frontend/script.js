@@ -1,3 +1,4 @@
+// Global
 const openModalBtn = document.querySelector("#open-modal-btn");
 const closeModal = document.querySelector(".close-modal-btn");
 const loginModal = document.querySelector("#login-modal");
@@ -13,44 +14,77 @@ const cancelCreateAccountBtn = document.querySelector(
   "#cancelCreateAccountBtn"
 );
 const removeBookBtn = document.querySelector("#removeBookBtn");
+// BaseURL
 
 const BASE_URL = "http://localhost:1337";
 
+// function
 function showModal(modal) {
   modal?.classList.add("show");
   modal?.classList.remove("hide");
 }
 
-function handleLogin(userData) {
-  if (userData) {
-    const capitalUsername =
-      userData.username.charAt(0).toUpperCase() + userData.username.slice(1);
+function hideModal(modal) {
+  modal?.classList.remove("show");
+  modal?.classList.add("hide");
+}
 
-    const welcomeMessage = document.querySelector("#welcome-message");
-    if (welcomeMessage) {
-      welcomeMessage.innerHTML = `Welcome ${capitalUsername}`;
-    }
+function getToken() {
+  return localStorage.getItem("jwt");
+}
 
-    loginText.innerHTML = `Your Profile`;
-    loginText.style.cursor = "pointer";
+function setWelcome(username) {
+  const welcome = document.querySelector("#welcome-message");
+  if (welcome) {
+    welcome.textContent = `Welcome ${
+      username.charAt(0).toUpperCase() + username.slice(1)
+    }`;
+  }
+}
+// Authorization
+async function loginUser(username, password) {
+  try {
+    const res = await axios.post(`${BASE_URL}/api/auth/local`, {
+      identifier: username,
+      password,
+    });
+    localStorage.setItem("jwt", res.data.jwt);
+    alert("Login successful!");
+    handleLogin(res.data.user);
+  } catch {
+    alert("Login failed.");
+  }
+}
 
-    if (!document.querySelector(".logout-icon")) {
-      addLogutBtn();
-    }
-    if (!document.querySelector(".book-icon")) {
-      backToBooks();
+async function registerUser(username, email, password) {
+  try {
+    const res = await axios.post(`${BASE_URL}/api/auth/local/register`, {
+      username,
+      email,
+      password,
+    });
+    localStorage.setItem("jwt", res.data.jwt);
+    alert("Account created!");
+    handleLogin(res.data.user);
+  } catch (error) {
+    if (error.response?.status === 400) {
+      alert("Username already exists.");
+    } else {
+      alert("Registration failed.");
     }
   }
 }
 
-function addLogutBtn() {
-  const logoutIcon = document.createElement("i");
-  logoutIcon.className = "fa-solid fa-door-open logout-icon";
-  logoutIcon.style.cursor = "pointer";
-  logoutIcon.style.marginLeft = "10px";
-  loginText.parentElement.appendChild(logoutIcon);
-
-  logoutIcon.addEventListener("click", handleLogout);
+function handleLogin(user) {
+  if (!user) {
+    return;
+  } else if (user) {
+    setWelcome(user.username);
+    loginText.textContent = "Your Profile";
+    addLogutBtn();
+    backToBooks(user);
+  }
+  renderBooks();
 }
 
 function handleLogout() {
@@ -61,60 +95,60 @@ function handleLogout() {
 
   const welcomeMessage = document.querySelector("#welcome-message");
   if (welcomeMessage) {
-    welcomeMessage.innerHTML = "";
+    welcomeMessage.textContent = "";
   }
-  const logoutIcon = document.querySelector(".logout-icon");
-  if (logoutIcon) {
-    logoutIcon.remove();
+  const logoutContainer = document.querySelector(".logout-icon-container");
+  if (logoutContainer) {
+    logoutContainer.remove();
   }
-  const bookIcon = document.querySelector(".book-icon-container");
-  if (bookIcon) {
-    bookIcon.remove();
+  const bookIconContainer = document.querySelector(".book-icon-container");
+  if (bookIconContainer) {
+    bookIconContainer.remove();
   }
   renderBooks();
 }
 
-document.addEventListener("DOMContentLoaded", async () => {
-  await updateLogionStatus();
-  const userData = await getMe();
-  if (userData) {
-    renderProfile();
-  }
-});
+function addLogutBtn() {
+  const logoutContainer = document.createElement("div");
+  logoutContainer.className = "logout-icon-container";
+  logoutContainer.style.display = "flex";
+  logoutContainer.style.alignItems = "center";
+  logoutContainer.style.cursor = "pointer";
+  logoutContainer.style.marginLeft = "10px";
 
-function hideModal(modal) {
-  modal?.classList.remove("show");
-  modal?.classList.add("hide");
+  const logoutIcon = document.createElement("i");
+  logoutIcon.className = "fa-solid fa-door-open logout-icon";
+
+  const logoutText = document.createElement("span");
+  logoutText.textContent = "Logout";
+  logoutText.className = "logout-text";
+  logoutText.style.fontSize = "0.9rem";
+  logoutText.style.marginLeft = "5px";
+
+  logoutContainer.appendChild(logoutIcon);
+  logoutContainer.appendChild(logoutText);
+
+  const loginSection = loginText.parentElement;
+  loginSection.appendChild(logoutContainer);
+  logoutContainer.addEventListener("click", handleLogout);
 }
-
-function openLogionModal(e) {
-  e.preventDefault();
-  showModal(loginModal);
-}
-
-async function updateLogionStatus() {
-  const userData = await getMe();
-  if (userData) {
-    handleLogin(userData);
-    backToBooks(userData);
-  } else {
-    loginText.innerHTML = "Login";
-    loginText.style.cursor = "pointer";
-  }
-}
-
+// eventListner
 openModalBtn.addEventListener("click", (e) => {
-  if (e.target.id === "login-text" || e.target.closest("#login-text")) {
-    const token = localStorage.getItem("jwt");
-    if (!token) {
-      openLogionModal(e);
-      return;
-    }
+  const token = getToken();
+  if (!token) {
+    showModal(loginModal);
+  } else {
     renderProfile();
   }
 });
 
-closeModal.addEventListener("click", () => hideModal(loginModal));
+loginForm.addEventListener("submit", (e) => {
+  e.preventDefault();
+  const username = document.querySelector("#username").value.trim();
+  const password = document.querySelector("#password").value.trim();
+  loginUser(username, password);
+  hideModal(loginModal);
+});
 
 createAccountBtn.addEventListener("click", (e) => {
   e.preventDefault();
@@ -127,12 +161,9 @@ cancelCreateAccountBtn.addEventListener("click", (e) => {
   hideModal(createAccountModal);
 });
 
+closeModal.addEventListener("click", () => hideModal(loginModal));
 closeCreateAccountModal.addEventListener("click", () => {
   hideModal(createAccountModal);
-});
-
-closeModal.addEventListener("click", () => {
-  hideModal(loginModal);
 });
 
 createAccountBtn.addEventListener("click", (e) => {
@@ -140,6 +171,232 @@ createAccountBtn.addEventListener("click", (e) => {
   hideModal(loginModal);
   showModal(createAccountModal);
 });
+
+// render Profil and Books
+
+async function getMe() {
+  const token = getToken();
+  if (!token) return null;
+  try {
+    const res = await axios.get(`${BASE_URL}/api/users/me?populate=*`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    return res.data;
+  } catch {
+    alert("Failed to fetch user.");
+    return null;
+  }
+}
+
+async function renderBooks() {
+  const token = getToken();
+  const userData = await getMe();
+  const savedBooks = userData?.savedBooks?.map((b) => b.id) || [];
+
+  // if (token) sa ska det framgå vem som är inloggad
+  const container = document.querySelector(".container-main");
+  try {
+    // en egen metod för att hämta böcker borde fixas
+    let response = await axios.get(`${BASE_URL}/api/books?populate=*`);
+    const books = response.data.data;
+    container.innerHTML =
+      '<div id="welcome-message" class="welcome-message"></div><div class="book-list" id="book-list"></div>';
+    const booksList = document.querySelector("#book-list");
+
+    books.forEach((book) => {
+      let coverUrl = book.cover.formats.thumbnail.url;
+      const isSaved = savedBooks.includes(book.id);
+
+      let bookDiv = document.createElement("div");
+      bookDiv.className = "book-item";
+      bookDiv.dataset.id = book.id;
+      let stars = book.bookRatings?.map((rating) => rating.rating) || [];
+      let averageRating =
+        stars.length > 0
+          ? Math.round(
+              stars.reduce((acc, rating) => acc + rating, 0) / stars.length
+            )
+          : 0;
+      bookDiv.innerHTML = ` 
+       <div class="heart-container">
+          ${
+            token
+              ? `<i class="fa-${
+                  isSaved ? "solid" : "regular"
+                } fa-heart" title="Save to favorites"></i>`
+              : ""
+          }
+        </div>
+        ${
+          coverUrl
+            ? `<img src="${BASE_URL}${coverUrl}" alt="${book.title} cover" width="100px" />`
+            : "<p>No image</p>"
+        }
+
+        <h3 class="book-name">${book.title}</h3>
+        <h4 class="book-author">${book.author}</h4>
+        <p class="book-release-date">Date of Release: ${book.release_date}</p>
+        <p class="book-length">${book.length} pages</p>
+        
+        <p class="book-rating">Rating: ${book.rating ?? ""}
+          <span class="stars" data-id="${book.id}">
+            ${[1, 2, 3, 4, 5]
+              .map(
+                (value) =>
+                  `<i class="fa-${
+                    value <= averageRating ? "solid" : "regular"
+                  } fa-star" data-value="${value}"></i>`
+              )
+              .join("")}
+          </span>
+        </p>
+        <p class="book-price"> Price: ${book.price}kr</p>
+        <button class="buy-button">Buy</button>`;
+      booksList.appendChild(bookDiv);
+    });
+  } catch (error) {
+    console.error("Error fetching books:", error);
+    alert("Failed to load books.");
+  }
+}
+
+async function renderProfile() {
+  const user = await getMe();
+  if (!user) return;
+
+  const profileContainer = document.querySelector(".container-main");
+  profileContainer.innerHTML = `
+    <h2>Your Profile</h2>
+    <label>Sort:</label>
+    <select id="sort-saved">
+      <option value="title">Title</option>
+      <option value="author">Author</option>
+    </select>
+    <ul id="saved-books-list"></ul>
+  `;
+
+  const bookList = document.querySelector("#saved-books-list");
+
+  user.savedBooks.forEach(async (book) => {
+    console.log(book);
+    let bookObject = await getBook(book.id);
+    console.log(bookObject);
+
+    const li = document.createElement("li");
+    li.dataset.title = bookObject.title;
+    li.dataset.author = bookObject.author;
+
+    let stars = bookObject.bookRatings?.map((rating) => rating.rating) || [];
+    let averageRating =
+      stars.length > 0
+        ? Math.round(
+            stars.reduce((acc, rating) => acc + rating, 0) / stars.length
+          )
+        : 0;
+    console.log(stars);
+
+    li.innerHTML = `
+      <h3 class="book-name">${bookObject.title}</h3>
+      <h4 class="book-author">${bookObject.author}</h4>
+      <div class="stars" data-id="${bookObject.id}">
+        ${[1, 2, 3, 4, 5]
+          .map(
+            (value) =>
+              `<i class="fa-${
+                value <= averageRating ? "solid" : "regular"
+              } fa-star" data-value="${value}"></i>`
+          )
+          .join("")}
+      </div>
+      <button class="remove-book" data-id="${bookObject.id}">Remove</button>
+      <button class="buy-button" data-id="${bookObject.id}">Buy</button>
+    `;
+    bookList.appendChild(li);
+  });
+
+  document.querySelector("#sort-saved").addEventListener("change", (e) => {
+    const sortBy = e.target.value;
+    const listItems = Array.from(bookList.children);
+
+    listItems.sort((a, b) => {
+      const textA = a.dataset[sortBy].toLowerCase();
+      const textB = b.dataset[sortBy].toLowerCase();
+      return textA.localeCompare(textB);
+    });
+
+    bookList.innerHTML = "";
+    listItems.forEach((item) => bookList.appendChild(item));
+  });
+
+  document.querySelectorAll(".remove-book").forEach((btn) => {
+    btn.addEventListener("click", async (e) => {
+      const bookId = e.target.dataset.id;
+      const token = getToken();
+      if (!token) {
+        alert("Please log in to remove a book.");
+        return;
+      }
+      removeSavedBooks(user.id, bookId);
+      // här borde vi rendera om profilen sa att booken försvinner
+    });
+  });
+
+  // ⭐ RATING
+  document.querySelectorAll(".stars i").forEach((star) => {
+    star.addEventListener("click", async (e) => {
+      const rating = parseInt(e.target.dataset.value);
+      const bookId = parseInt(e.target.closest(".stars").dataset.id);
+      const token = getToken();
+
+      if (!token) {
+        alert("Please log in to rate a book.");
+        return;
+      }
+
+      try {
+        // Get the current user information
+        const userData = await getMe();
+
+        if (!userData) {
+          alert("Unable to retrieve user information.");
+          return;
+        }
+
+        // Send the rating with proper relations to Strapi
+        await axios.post(
+          `${BASE_URL}/api/book-ratings`, // Use the correct collection endpoint
+          {
+            data: {
+              rating: rating,
+              book: {
+                id: bookId,
+              },
+              users_permissions_user: userData.id,
+            },
+          },
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+
+        // Update the UI to show the selected stars
+        const starsContainer = e.target.closest(".stars");
+        starsContainer.querySelectorAll("i").forEach((star, index) => {
+          if (index < rating) {
+            star.classList.remove("fa-regular");
+            star.classList.add("fa-solid");
+          } else {
+            star.classList.remove("fa-solid");
+            star.classList.add("fa-regular");
+          }
+        });
+
+        alert(`You rated this book ${rating} stars!`);
+      } catch (error) {
+        console.error("Error submitting rating:", error);
+        alert("Failed to submit rating.");
+      }
+    });
+  });
+}
 
 function backToBooks(userData) {
   if (!userData) {
@@ -155,110 +412,37 @@ function backToBooks(userData) {
 
     const bookIcon = document.createElement("i");
     bookIcon.className = "fa-solid fa-book book-icon";
-    bookIcon.style.marginRight = "5px";
+    bookIcon.style.marginRight = "10px";
 
-    // Create text label
     const bookText = document.createElement("span");
     bookText.textContent = "View All Books";
     bookText.className = "book-text";
     bookText.style.fontSize = "0.9rem";
 
-    // Add icon and text to container
     bookIconContainer.appendChild(bookIcon);
     bookIconContainer.appendChild(bookText);
 
-    // Add to the DOM
     const loginSection = loginText.parentElement;
     loginSection.appendChild(bookIconContainer);
 
     // Add click event to the container
     bookIconContainer.addEventListener("click", () => {
-      const profileContainer = document.querySelector(".container-main");
-      const isUser = document.querySelector(".saved-books");
-      if (isUser) {
+      const isProflie = document.querySelector("#saved-books-list");
+      if (isProflie) {
+        const profileContainer = document.querySelector(".container-main");
         profileContainer.innerHTML = `
               <div id="welcome-message" class="welcome-message"></div>
               <div class="book-list" id="book-list"></div>
             `;
+        setWelcome(userData.username);
         renderBooks();
       } else {
         renderProfile();
       }
-      updateLogionStatus();
     });
   }
 }
 
-const renderBooks = async (userData) => {
-  try {
-    let response = await axios.get(`${BASE_URL}/api/books?populate=*`);
-    let books = response.data.data;
-
-    const mainContainer = document.querySelector(".container-main");
-    mainContainer.innerHTML = `
-      <div id="welcome-message" class="welcome-message"></div>
-      <div class="book-list" id="book-list"></div>
-    `;
-
-    let bookList = document.querySelector(".book-list");
-    bookList.innerHTML = "";
-
-    books.forEach((book) => {
-      let coverUrl = book.cover.formats.thumbnail.url;
-
-      const isLoggedIn = localStorage.getItem("jwt");
-      const isSaved =
-        userData &&
-        userData.savedBooks &&
-        userData.savedBooks.some((savedBook) => savedBook.id === book.id);
-
-      let div = document.createElement("div");
-      div.className = "book-item";
-      div.dataset.id = book.id;
-      div.innerHTML = ` 
-        <div class="heart-container">
-        ${
-          coverUrl
-            ? `<img src="${BASE_URL}${coverUrl}" alt="${book.title} cover" width="100px" />`
-            : "<p>Ingen bild</p>"
-        }
-        ${
-          isLoggedIn
-            ? `
-            <div class="heart-container">
-              <i class="fa-${
-                isSaved ? "solid" : "regular"
-              } fa-heart" title="Save to favorites"></i>
-            </div>`
-            : ""
-        }
-        </div>
-
-        <h3 class="book-name">${book.title}</h3>
-        <h4 class="book-author">${book.author}</h4>
-        <p class="book-release-date">Date of Release: ${book.release_date}</p>
-        <p class="book-length">${book.length} pages</p>
-        <p class="book-rating">Rating: ${book.rating ?? ""}
-          <span class="stars">
-            <i class="fa-regular fa-star" data-value="1"></i>
-            <i class="fa-regular fa-star" data-value="2"></i>
-            <i class="fa-regular fa-star" data-value="3"></i>
-            <i class="fa-regular fa-star" data-value="4"></i>
-            <i class="fa-regular fa-star" data-value="5"></i>
-          </span>
-        </p>
-        <p class="book-price"> Price: ${book.price} $</p>
-        <button class="buy-button">Buy</button>`;
-      bookList.appendChild(div);
-    });
-    updateLogionStatus();
-  } catch (error) {
-    console.error("Error fetching books:", error);
-    alert("Failed to load books.");
-  }
-};
-
-// Handle login form submission
 loginForm.addEventListener("submit", async (e) => {
   e.preventDefault();
 
@@ -280,7 +464,6 @@ loginForm.addEventListener("submit", async (e) => {
       password,
     });
     const token = response.data.jwt;
-    alert("Login successful!");
     localStorage.setItem("jwt", token);
 
     // <div id="coverHeartContainer">
@@ -296,98 +479,6 @@ loginForm.addEventListener("submit", async (e) => {
     alert("Login failed.");
   }
 });
-
-const renderProfile = async () => {
-  const token = localStorage.getItem("jwt");
-  if (!token) {
-    return;
-  }
-  try {
-    const user = await getMe();
-    console.log("User data:", user);
-    const savedBooks = user.savedBooks ?? [];
-
-    const profileContainer = document.querySelector(".container-main");
-    profileContainer.innerHTML = `
-        <div id="welcome-message" class="welcome-message"></div>
-        <h2>Your Profile </h2>
-        <div>
-          <label>Sort by:</label>
-          <select id="sort-books">
-            <option value="">Options</option>
-            <option value="title">Title</option>
-            <option value="author">Author</option>
-          </select>
-        </div>
-        <ul id="saved-books-list" class="saved-books">
-          ${savedBooks.length === 0 ? "<p>No saved books</p>" : ""}
-          ${savedBooks.length > 0 ? "<h3>Saved Books</h3>" : ""}
-          ${savedBooks
-            .map(
-              (book) =>
-                `<li>${book.title}</li>
-             <p>${book.author}</p>
-             <button class="rate-book" data-id="${book.id}">Rate</button>
-             <div class="rating">
-             <i class="fa-regular fa-star" data-value="1"></i>
-             <i class="fa-regular fa-star" data-value="2"></i>
-             <i class="fa-regular fa-star" data-value="3"></i>
-             <i class="fa-regular fa-star" data-value="4"></i>
-             <i class="fa-regular fa-star" data-value="5"></i>
-             </div>
-             <button class="remove-book" data-id="${book.id}">Remove</button>
-             <button class="buy-book" data-id="${book.id}">Buy</button>
-             `
-            )
-            .join("")}
-        </ul>
-      `;
-
-    updateLogionStatus();
-
-    if (savedBooks.length > 0) {
-      // Fix: Add event listeners to ALL remove buttons
-      document.querySelectorAll(".remove-book").forEach((btn) => {
-        btn.addEventListener("click", async (e) => {
-          e.preventDefault();
-          const bookId = e.target.dataset.id;
-          try {
-            await axios.delete(
-              `${BASE_URL}/api/users/me/toReadList/${bookId}`,
-              {
-                headers: { Authorization: `Bearer ${token}` },
-              }
-            );
-            alert("Book removed from favorites!");
-            renderProfile();
-          } catch (error) {
-            console.error("Error removing book:", error);
-            alert("Failed to remove book.");
-          }
-        });
-      });
-
-      // Fix: Correct selector for sort-books (use ID)
-      document.querySelector("#sort-books").addEventListener("change", (e) => {
-        const sortBy = e.target.value;
-        const sortedBooks = Array.from(
-          document.querySelectorAll(".saved-books li")
-        );
-        sortedBooks.sort((a, b) => {
-          return a.dataset[sortBy].localeCompare(b.dataset[sortBy]); // Add return statement
-        });
-        const ul = document.querySelector("#saved-books-list");
-        ul.innerHTML = "";
-        sortedBooks.forEach((li) => {
-          ul.appendChild(li);
-        });
-      });
-    }
-  } catch (error) {
-    console.error("Error fetching profile:", error);
-    alert("Failed to load profile.");
-  }
-};
 
 createAccountForm.addEventListener("submit", async (e) => {
   e.preventDefault();
@@ -476,34 +567,29 @@ document.addEventListener("click", async (e) => {
   }
 
   if (e.target.classList.contains("fa-heart")) {
-    const heartIcon = e.target.closest(".fa-heart");
-    const bookItem = button.closest(".book-item");
-    const bookId = bookItem.dataset.id;
+    const heartIcon = e.target;
+    const bookItem = heartIcon.closest(".book-item");
+    const bookId = parseInt(bookItem.dataset.id);
+    const user = await getMe();
 
-    const token = localStorage.getItem("jwt");
-    if (!token) {
+    if (!user) {
       alert("Please log in to add a book to favorites.");
       return;
     }
+
     try {
       if (heartIcon.classList.contains("fa-solid")) {
-        await axios.delete(`${BASE_URL}/api/users/me/favorites/${bookId}`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-
+        await removeSavedBooks(user.id, bookId);
         heartIcon.classList.remove("fa-solid");
         heartIcon.classList.add("fa-regular");
-        alert("Book removed from favorites!");
       } else {
-        await axios.post(
-          `${BASE_URL}/api/users/me/favorites`,
-          { bookId },
-          { headers: { Authorization: `Bearer ${token}` } }
-        );
-
+        await addSavedBooks(user.id, bookId);
         heartIcon.classList.remove("fa-regular");
         heartIcon.classList.add("fa-solid");
-        alert("Book added to favorites!");
+      }
+
+      if (document.querySelector("#saved-books-list")) {
+        renderProfile();
       }
     } catch (error) {
       console.error("Error updating favorites:", error);
@@ -512,104 +598,102 @@ document.addEventListener("click", async (e) => {
   }
 });
 
-async function getMe() {
+async function getBook(bookId) {
   const token = localStorage.getItem("jwt");
   if (!token) {
-    return null; // Return null if no token is found
+    alert("Please log in to view book details.");
+    return null;
   }
 
   try {
     const response = await axios.get(
-      `${BASE_URL}/api/users/me?populate=savedBooks`,
+      `${BASE_URL}/api/books?filters[id][$eq]=${bookId}&populate=*`,
       {
         headers: { Authorization: `Bearer ${token}` },
       }
     );
-    return response.data; // Return the user data
+
+    // Extract the first book from the data array
+    if (response.data.data && response.data.data.length > 0) {
+      // Return the book attributes
+      return response.data.data[0];
+    } else {
+      console.error("Book not found");
+      return null;
+    }
   } catch (error) {
-    console.error("Error fetching user data:", error);
-    alert("Failed to load user data.");
-    return null; // Return null in case of an error
+    console.error("Error fetching book:", error);
+    return null;
   }
 }
 
-async function updateSavedBooks(userId, bookIds) {
+async function addSavedBooks(userId, bookIds) {
   const token = localStorage.getItem("jwt");
   if (!token) {
     alert("Please log in to save books.");
-    return null; // Return null if no token is found
+    return null;
   }
 
   try {
     const response = await axios.put(
       `${BASE_URL}/api/users/${userId}`,
       {
-        savedBooks: bookIds,
+        savedBooks: {
+          connect: Array.isArray(bookIds) ? bookIds : [bookIds],
+        },
       },
       {
         headers: { Authorization: `Bearer ${token}` },
       }
     );
 
-    return response.data; // Return the updated user data
+    return response.data;
   } catch (error) {
-    alert("Failed to update saved books.");
-    return null; // Return null in case of an error
+    console.error("Error adding saved books:", error);
+    alert("Failed to save books.");
+    return null;
   }
 }
 
-async function updateBookRating(bookname, rating) {
+async function removeSavedBooks(userId, bookIds) {
   const token = localStorage.getItem("jwt");
   if (!token) {
-    alert("Please log in to rate books.");
+    alert("Please log in to remove saved books.");
     return null;
   }
 
   try {
-    const userData = await getMe();
-    if (!userData) {
-      throw new Error("Could not fetch current user data");
-    }
-
-    // Get existing ratings or initialize empty array
-    const existingRatings = userData.bookRatings || [];
-
-    // Check if this book already has a rating
-    const existingRatingIndex = existingRatings.findIndex(
-      (item) => item.bookname === bookname
-    );
-
-    let updatedRatings;
-    if (existingRatingIndex >= 0) {
-      // Update existing rating
-      updatedRatings = [...existingRatings];
-      updatedRatings[existingRatingIndex] = {
-        ...updatedRatings[existingRatingIndex],
-        rating,
-      };
-    } else {
-      // Add new rating
-      updatedRatings = [...existingRatings, { bookname, rating }];
-    }
-
-    // Send the complete updated array to the server
     const response = await axios.put(
-      `${BASE_URL}/api/users/${userData.id}`,
+      `${BASE_URL}/api/users/${userId}`,
       {
-        bookRatings: updatedRatings,
+        savedBooks: {
+          disconnect: Array.isArray(bookIds) ? bookIds : [bookIds],
+        },
       },
       {
         headers: { Authorization: `Bearer ${token}` },
       }
     );
 
-    console.log("Book rating updated successfully!");
     return response.data;
   } catch (error) {
-    console.error("Error updating book rating:", error);
-    alert("Failed to update book rating.");
+    console.error("Error removing saved books:", error);
+    alert("Failed to remove books from saved list.");
     return null;
   }
 }
 
+document.addEventListener("DOMContentLoaded", async () => {
+  const token = getToken();
+  if (token) {
+    const userData = await getMe();
+    if (userData) {
+      handleLogin(userData);
+    }
+  } else {
+    loginText.innerHTML = "Login";
+    localStorage.removeItem("jwt");
+    renderBooks();
+  }
+});
 renderBooks();
