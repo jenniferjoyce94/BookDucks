@@ -1,23 +1,16 @@
 * {
   box-sizing: border-box;
-  font-family: var(--font-family);
+  font-family: var(--main-font-family);
   margin: 0;
   padding: 0;
 }
-.cormorant-garamond {
-  font-family: "Cormorant Garamond", serif;
-  font-optical-sizing: auto;
-  font-weight: 400;
-  font-style: normal;
-}
-
 :root {
-  --main-bg-color: #fff;
+  --main-bg-color: #fffef7;
   --main-text-color: #000;
   --main-logo-color: #5e716a;
   --main-container-color: #f2ddbe;
   --main-font-size: 16px;
-  --main-font-family: "cormorant-garamond", serif;
+  --main-font-family: "Cormorant Garamond", serif;
 }
 
 body {
@@ -87,6 +80,10 @@ img {
 }
 #login-text {
   margin-left: 10px;
+  font-size: 1rem;
+}
+#login-text:hover {
+  text-decoration: underline;
 }
 
 #login-btn {
@@ -143,6 +140,8 @@ img {
   font-size: var(--main-font-size);
   cursor: pointer;
   border-radius: 5px;
+  display: flex;
+  align-items: center;
 }
 
 .close-modal-btn,
@@ -227,4 +226,70 @@ input[type="email"] {
   margin-left: 25px;
   font-size: 1.4rem;
   cursor: pointer;
+}
+
+.book-item {
+  transition: transform 0.8s ease;
+  opacity: 0.8;
+}
+
+.logout-icon-container,
+.book-icon-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-left: 20px;
+  cursor: pointer;
+}
+
+.logout-text,
+.book-text {
+  font-size: 1rem;
+  margin-left: 1rem;
+  transition: all 0.3s ease;
+}
+
+span:hover {
+  text-decoration: underline;
+}
+
+footer.footer {
+  width: 100%;
+  background: var(--button-blue);
+  position: static;
+  text-align: center;
+}
+.footer-container {
+  margin-bottom: 0px auto;
+  width: 100%;
+  background-color: var(--main-container-color);
+}
+
+#footer-rights {
+  color: var(--primary-button-text-color);
+}
+
+.footer-icons {
+  padding: 2rem;
+}
+
+.footer-icons img:hover {
+  filter: invert(30%);
+}
+
+.footer-links {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  margin: 1rem;
+}
+
+.footer-links a:hover {
+  color: var(--primary-button-text-color);
+  text-decoration: underline;
+}
+
+.footer-links a {
+  text-decoration: none;
+  color: var(--box-color);
 }

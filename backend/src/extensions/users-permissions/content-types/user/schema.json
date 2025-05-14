@@ -71,7 +71,7 @@
       "target": "api::book.book",
       "inversedBy": "users"
     },
-    "book_ratings": {
+    "bookRatings": {
       "type": "relation",
       "relation": "oneToMany",
       "target": "api::book-rating.book-rating",

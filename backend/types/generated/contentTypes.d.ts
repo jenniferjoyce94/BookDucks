@@ -900,7 +900,7 @@ export interface PluginUsersPermissionsUser
   };
   attributes: {
     blocked: Schema.Attribute.Boolean & Schema.Attribute.DefaultTo<false>;
-    book_ratings: Schema.Attribute.Relation<
+    bookRatings: Schema.Attribute.Relation<
       'oneToMany',
       'api::book-rating.book-rating'
     >;
