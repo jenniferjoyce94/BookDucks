@@ -52,7 +52,7 @@ async function changeTheme() {
 
     const logos = document.querySelectorAll(".theme-logo");
     logos.forEach((logo) => {
-      logo.style.opacity = "0";
+      // logo.style.opacity = "0";
       logo.style.display = "none";
     });
 
@@ -154,7 +154,7 @@ function addLogutBtn() {
   logoutContainer.className = "logout-icon-container";
 
   const logoutIcon = document.createElement("i");
-  logoutIcon.className = "fa-solid fa-door-open logout-icon";
+  logoutIcon.className = "fa-solid fa-door-open logout-icon theme-icon";
 
   const logoutText = document.createElement("span");
   logoutText.textContent = "Logout";
@@ -492,18 +492,56 @@ async function renderProfile() {
       </select>
     </div>
     <ul id="saved-books-list"></ul>
+    <ul id="ratings-books-list"></ul>
   `;
   setWelcome(user.username);
   const bookList = document.querySelector("#saved-books-list");
+  const ratingsBookList = document.querySelector("#ratings-books-list");
+
+  user.bookRatings.forEach(async (userBookRating) => {
+    let rating = await getBookRating(userBookRating.id);
+    if (!rating) {
+      return;
+    }
+
+    const bookId = rating.book.id;
+    let bookObject = await getBook(bookId);
+
+    const bookDiv = document.createElement("div");
+    bookDiv.className = "book-rating-user";
+    bookDiv.dataset.id = bookObject.id;
+    bookDiv.dataset.title = bookObject.title;
+    bookDiv.dataset.author = bookObject.author;
+
+    bookDiv.innerHTML = `
+      <div class="rating-container">
+    
+      <h3 class="book-name">${bookObject.title}</h3>
+      <h4 class="book-author">${bookObject.author}</h4>
+      <p class="book-rating">Your Rating:
+         <span class="stars" data-id="${bookObject.id}">
+          ${[1, 2, 3, 4, 5]
+            .map(
+              (value) =>
+                `<i class="fa-${
+                  value <= rating.rating ? "solid" : "regular"
+                } fa-star" data-value="${value}"></i>`
+            )
+            .join("")}
+        </span>
+      </p>
+     </div>
+    `;
+    ratingsBookList.appendChild(bookDiv);
+  });
 
   user.savedBooks.forEach(async (book) => {
-    let bookObject = await getBook(book.id);
-
     if (!user.savedBooks || user.savedBooks.length === 0) {
       bookList.innerHTML = "<p>No saved books</p>";
       return;
       bookList.appendChild(li);
     }
+    let bookObject = await getBook(book.id);
 
     const bookDiv = document.createElement("div");
     bookDiv.className = "book-item";
@@ -664,7 +702,7 @@ function backToBooks(userData) {
     bookIconContainer.className = "book-icon-container";
 
     const bookIcon = document.createElement("i");
-    bookIcon.className = "fa-solid fa-book book-icon fa-xl";
+    bookIcon.className = "fa-solid fa-book book-icon fa-xl theme-icon";
 
     const bookText = document.createElement("span");
     bookText.textContent = "View All Books";
@@ -692,7 +730,35 @@ function backToBooks(userData) {
     });
   }
 }
+
 //-----------------Start and heart function------------------
+
+async function getBookRating(bookRatingId) {
+  const token = localStorage.getItem("jwt");
+  if (!token) {
+    alert("Please log in to view book details.");
+    return null;
+  }
+
+  try {
+    const response = await axios.get(
+      `${BASE_URL}/api/book-ratings?filters[id][$eq]=${bookRatingId}&populate=*`,
+      {
+        headers: { Authorization: `Bearer ${token}` },
+      }
+    );
+
+    if (response.data.data && response.data.data.length > 0) {
+      return response.data.data[0];
+    } else {
+      console.error("Book rating not found");
+      return null;
+    }
+  } catch (error) {
+    console.error("Error fetching book:", error);
+    return null;
+  }
+}
 
 async function getBook(bookId) {
   const token = localStorage.getItem("jwt");
