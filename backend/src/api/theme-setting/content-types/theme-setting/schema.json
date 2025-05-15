@@ -1,0 +1,23 @@
+{
+  "kind": "singleType",
+  "collectionName": "theme_settings",
+  "info": {
+    "singularName": "theme-setting",
+    "pluralName": "theme-settings",
+    "displayName": "themeSetting",
+    "description": ""
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "attributes": {
+    "theme": {
+      "type": "enumeration",
+      "enum": [
+        "default",
+        "halloween",
+        "christmas"
+      ]
+    }
+  }
+}

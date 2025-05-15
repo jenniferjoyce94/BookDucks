@@ -442,6 +442,35 @@ export interface ApiBookBook extends Struct.CollectionTypeSchema {
   };
 }
 
+export interface ApiThemeSettingThemeSetting extends Struct.SingleTypeSchema {
+  collectionName: 'theme_settings';
+  info: {
+    description: '';
+    displayName: 'themeSetting';
+    pluralName: 'theme-settings';
+    singularName: 'theme-setting';
+  };
+  options: {
+    draftAndPublish: true;
+  };
+  attributes: {
+    createdAt: Schema.Attribute.DateTime;
+    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    locale: Schema.Attribute.String & Schema.Attribute.Private;
+    localizations: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::theme-setting.theme-setting'
+    > &
+      Schema.Attribute.Private;
+    publishedAt: Schema.Attribute.DateTime;
+    theme: Schema.Attribute.Enumeration<['default', 'halloween', 'christmas']>;
+    updatedAt: Schema.Attribute.DateTime;
+    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+  };
+}
+
 export interface PluginContentReleasesRelease
   extends Struct.CollectionTypeSchema {
   collectionName: 'strapi_releases';
@@ -957,6 +986,7 @@ declare module '@strapi/strapi' {
       'admin::user': AdminUser;
       'api::book-rating.book-rating': ApiBookRatingBookRating;
       'api::book.book': ApiBookBook;
+      'api::theme-setting.theme-setting': ApiThemeSettingThemeSetting;
       'plugin::content-releases.release': PluginContentReleasesRelease;
       'plugin::content-releases.release-action': PluginContentReleasesReleaseAction;
       'plugin::i18n.locale': PluginI18NLocale;

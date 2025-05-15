@@ -1,22 +1,63 @@
 * {
   box-sizing: border-box;
-  font-family: var(--main-font-family);
+  font-family: "Cormorant Garamond", serif;
   margin: 0;
   padding: 0;
-}
-:root {
-  --main-bg-color: #fffef7;
-  --main-text-color: #000;
-  --main-logo-color: #5e716a;
-  --main-container-color: #f2ddbe;
-  --main-font-size: 16px;
-  --main-font-family: "Cormorant Garamond", serif;
 }
 
 body {
   margin: 0;
   padding: 0;
+  height: 100%;
   background-color: var(--main-bg-color);
+  color: var(--main-text-color);
+}
+:root {
+  --main-bg-color: #fffef7;
+  --main-text-color: #373636;
+  --main-logo-color: #5e716a;
+  --main-container-color: #f2ddbe;
+  --main-font-size: 16px;
+  --main-font-family: "Cormorant Garamond", serif;
+}
+[data-theme="halloween"] {
+  --main-bg-color: #1e1e1e;
+  --main-text-color: #f0f0f0;
+  --main-logo-color: #fc7600;
+  --main-container-color: #2e2e2e;
+}
+[data-theme="christmas"] {
+  --main-bg-color: #580000;
+  --main-text-color: #f4bb37;
+  --main-logo-color: #b20000;
+  --main-container-color: #175401;
+}
+
+[data-theme="default"] .default-logo {
+  display: block;
+  opacity: 1;
+}
+
+[data-theme="halloween"] .halloween-logo {
+  display: block;
+  opacity: 1;
+}
+
+[data-theme="halloween"] .default-logo,
+[data-theme="halloween"] .christmas-logo {
+  display: none;
+  opacity: 0;
+}
+
+[data-theme="christmas"] .christmas-logo {
+  display: block;
+  opacity: 1;
+}
+
+[data-theme="christmas"] .default-logo,
+[data-theme="christmas"] .halloween-logo {
+  display: none;
+  opacity: 0;
 }
 
 .header {
@@ -252,44 +293,31 @@ input[type="email"] {
 span:hover {
   text-decoration: underline;
 }
-
-footer.footer {
-  width: 100%;
-  background: var(--button-blue);
-  position: static;
-  text-align: center;
-}
 .footer-container {
-  margin-bottom: 0px auto;
-  width: 100%;
   background-color: var(--main-container-color);
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  bottom: 0;
+  height: 9rem;
+  font-size: 1rem;
 }
 
+.social-media,
+.footer-links,
 #footer-rights {
-  color: var(--primary-button-text-color);
-}
-
-.footer-icons {
-  padding: 2rem;
-}
-
-.footer-icons img:hover {
-  filter: invert(30%);
-}
-
-.footer-links {
+  margin: 1rem;
   display: flex;
   justify-content: center;
-  gap: 1rem;
-  margin: 1rem;
+  align-items: center;
+  margin-left: 20px;
 }
 
-.footer-links a:hover {
-  color: var(--primary-button-text-color);
-  text-decoration: underline;
-}
-
-.footer-links a {
+a {
   text-decoration: none;
-  color: var(--box-color);
+  margin-left: 10px;
+  color: var(--main-text-color);
+}
+a:hover {
+  text-decoration: underline;
 }
