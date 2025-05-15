@@ -13,7 +13,7 @@ body {
   color: var(--main-text-color);
 }
 :root {
-  --main-bg-color: #fceeee;
+  --main-bg-color: #ffffff;
   --main-text-color: #373636;
   --main-logo-color: #5e716a;
   --main-container-color: #f2ddbe;
