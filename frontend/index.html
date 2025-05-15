@@ -7,24 +7,30 @@
     <script src="script.js" defer></script>
     <link rel="stylesheet" href="style.css" />
     <link rel="preconnect" href="https://fonts.googleapis.com"><script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600&display=swap" rel="stylesheet">
 <script src="https://kit.fontawesome.com/96ad95103a.js" crossorigin="anonymous"></script>
   </head>
   <body>
-    <div class="header">
-      <img src="./images/BookDuck.png" alt="A duck with a book" width="150px" height="150px" />
+    <header class="header">
+      <a href="index.html" class="logo-container">
+        <img src="./images/BookDuck.png" alt="BookDuck Logo" class="theme-logo default-logo" width="150px" height="150px" />
+        <img src="./images/halloween-duck.png" alt="Halloween BookDuck" class="theme-logo halloween-logo" width="150px" height="150px" />
+        <img src="./images/christmas-duck.png" alt="Christmas BookDuck" class="theme-logo christmas-logo" width="150px" height="150px" />
+      </a>
       <div class="header-container">
         <h1>Book Duck</h1>
-        <h2> Your Next Great Read Starts Here</h2>
+        <!-- <h2> Your Next Great Read Starts Here</h2> -->
+        <div class="search-container">
+          <input type="text" placeholder="Search..." class="search-input" />
+        </div>
       </div>
       <div class="login">
-        <button id="login-btn">
-          <a href="#" id="open-modal-btn">
-            <i class="fa-regular fa-user fa-xl" style="color: #000000;"></i>
+        <button id="open-modal-btn">
+          <i class="fa-regular fa-user fa-xl theme-icon"></i>
           <span id="login-text">Log in</span>
-          </a>
         </button>
       </div>
+    </header>
       <div id="login-modal" class="modal hide">
         <div class="modal-content">
           <span class="close-modal-btn">&times;</span>
@@ -40,11 +46,11 @@
       <div id="createAccountModal" class="modal hide">
         <div class="modal-content">
           <span id="closeCreateAccountModal" class="close">&times;</span>
-          <h3>Register new user</h3>
+          <h3>Register New User</h3>
           <form id="createAccountForm">
-            <input type="text" id="new-username" name="new-username" required placeholder="username"/>
-            <input type="email" id="new-email" name="new-email" required placeholder="email"/>
-            <input type="password" id="new-password" name="new-password" required placeholder="password"/>
+            <input type="text" id="new-username" name="new-username" required placeholder="username" />
+            <input type="email" id="new-email" name="new-email" required placeholder="email" />
+            <input type="password" id="new-password" name="new-password" required placeholder="password" />
             <button class="login-btn-modal" type="submit">Create Account</button>
             <button class="login-btn-modal" id="cancelCreateAccountBtn">Cancel</button>
           </form>
@@ -53,9 +59,26 @@
     </div>
     <main>
       <div class="container-main">
+        <div id="welcome-message" class="welcome-message"></div>
         <div class="book-list" id="book-list">
-  
-      </div>
+          <button class="save-button">
+          </button>
+        </div>
     </main>
+    <footer>
+    <div class="footer-container">
+      <p id="footer-rights">&copy; 2024 BookDuck</p>
+      <div class="social-media">
+        <a href="https://www.facebook.com" target="_blank"><i class="fa-brands fa-facebook"></i></a>
+        <a href="https://www.twitter.com" target="_blank"><i class="fa-brands fa-twitter"></i></a>
+        <a href="https://www.instagram.com" target="_blank"><i class="fa-brands fa-instagram"></i></a>
+      </div>
+      <div class="footer-links">
+        <a href="/about">About Us</a>
+        <a href="/contact">Contact Us</a>
+        <a href="/terms">Terms</a>
+      </div>
+    </div>
+    </footer>
   </body>
 </html>
