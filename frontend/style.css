@@ -109,7 +109,6 @@ h1 {
   color: #333;
   transition: color 0.3s ease;
 }
-
 .container-main {
   background-color: var(--main-container-color);
   padding: 2rem;

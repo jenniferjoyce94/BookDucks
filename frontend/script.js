@@ -436,12 +436,10 @@ async function renderBooks() {
             ? `<img src="${BASE_URL}${coverUrl}" alt="${book.title} cover" width="100px" />`
             : "<p>No image</p>"
         }
-
         <h3 class="book-name">${book.title}</h3>
         <h4 class="book-author">${book.author}</h4>
         <p class="book-release-date">Date of Release: ${book.release_date}</p>
         <p class="book-length">${book.length} pages</p>
-        
         <p class="book-rating">Rating: ${book.rating ?? ""}
           <span class="stars" data-id="${book.id}">
             ${[1, 2, 3, 4, 5]
