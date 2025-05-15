@@ -1,4 +1,3 @@
-// Global
 const openModalBtn = document.querySelector("#open-modal-btn");
 const closeModal = document.querySelector(".close-modal-btn");
 const loginModal = document.querySelector("#login-modal");
@@ -14,8 +13,6 @@ const cancelCreateAccountBtn = document.querySelector(
   "#cancelCreateAccountBtn"
 );
 const removeBookBtn = document.querySelector("#removeBookBtn");
-// BaseURL
-
 const BASE_URL = "http://localhost:1337";
 
 // ------------------------function------------------------
@@ -52,7 +49,6 @@ async function changeTheme() {
 
     const logos = document.querySelectorAll(".theme-logo");
     logos.forEach((logo) => {
-      // logo.style.opacity = "0";
       logo.style.display = "none";
     });
 
@@ -85,7 +81,6 @@ async function loginUser(username, password) {
       password,
     });
     localStorage.setItem("jwt", response.data.jwt);
-    alert("Login successful!");
     handleLogin(response.data.user);
   } catch {
     alert("Login failed.");
@@ -117,14 +112,13 @@ function handleLogin(user) {
   } else if (user) {
     setWelcome(user.username);
     loginText.textContent = "Your Profile";
-    addLogutBtn();
     backToBooks(user);
+    addLogutBtn();
   }
   renderBooks();
 }
 
 function handleLogout() {
-  // First, actually remove the token from localStorage
   localStorage.removeItem("jwt");
 
   loginText.innerHTML = "Login";
@@ -271,8 +265,6 @@ document.addEventListener("click", async (e) => {
   if (e.target.classList.contains("fa-star")) {
     const bookItem = e.target.closest(".book-item");
     const starsContainer = e.target.closest(".stars");
-    console.log(bookItem);
-    console.log(starsContainer);
 
     let bookId;
     if (bookItem) {
@@ -320,7 +312,6 @@ document.addEventListener("click", async (e) => {
           star.classList.add("fa-regular");
         }
       });
-      alert("Rating submitted successfully!");
     } catch (error) {
       console.error("Error submitting rating:", error);
       alert("Failed to submit rating.");
@@ -343,7 +334,6 @@ document.addEventListener("click", async (e) => {
         {},
         { headers: { Authorization: `Bearer ${token}` } }
       );
-      alert("Book purchased successfully!");
     } catch (error) {
       console.error("Error purchasing book:", error);
       alert("Failed to purchase book.");
@@ -377,7 +367,6 @@ document.addEventListener("click", async (e) => {
       }
     } catch (error) {
       console.error("Error updating favorites:", error);
-      alert("Failed to update favorites.");
     }
   }
 });
@@ -402,10 +391,8 @@ async function renderBooks() {
   const userData = await getMe();
   const savedBooks = userData?.savedBooks?.map((b) => b.id) || [];
 
-  // if (token) sa ska det framgå vem som är inloggad
   const container = document.querySelector(".container-main");
   try {
-    // en egen metod för att hämta böcker borde fixas
     let response = await axios.get(`${BASE_URL}/api/books?populate=*`);
     const books = response.data.data;
     container.innerHTML =
@@ -425,12 +412,15 @@ async function renderBooks() {
       bookDiv.className = "book-item";
       bookDiv.dataset.id = book.id;
       let stars = book.bookRatings?.map((rating) => rating.rating) || [];
-      let averageRating =
-        stars.length > 0
-          ? Math.round(
-              stars.reduce((acc, rating) => acc + rating, 0) / stars.length
-            )
-          : 0;
+      let averageRating = 0;
+      if (stars.length > 0) {
+        let sum = 0;
+        for (let i = 0; i < stars.length; i++) {
+          sum += stars[i];
+        }
+        let average = sum / stars.length;
+        averageRating = Math.round(average);
+      }
       bookDiv.innerHTML = ` 
        <div class="heart-container">
           ${
@@ -480,70 +470,82 @@ async function renderProfile() {
 
   const profileContainer = document.querySelector(".container-main");
   profileContainer.innerHTML = `
-  <div id="welcome-message" class="welcome-message"></div>
-    <h3>Your Saved Books</h3> 
-   <div class="sort-container">
-      <label>Sort by:</label>
-      <select id="sort-saved">
-        <option value="">Option</option>
-        <option value="title">Title (A-Z)</option>
-        <option value="author">Author (A-Z)</option>
-        <option value="rating">Rating</option>
-      </select>
+    <div class="profile-columns">
+      <div class="saved-books-column">
+        <h3>Saved books</h3> 
+        <div class="sort-container">
+          <select id="sort-saved">
+            <option value="">Sort by</option>
+            <option value="title_asc">Title (A-Z)</option>
+            <option value="title_desc">Title (Z-A)</option>
+            <option value="author_asc">Author (A-Z)</option>
+            <option value="author_desc">Author (Z-A)</option>
+            <option value="rating_desc">Rating (High-Low)</option>
+            <option value="rating_asc">Rating (Low-High)</option>
+          </select>
+        </div>
+        <ul id="saved-books-list" class="books-list"></ul>
+      </div>
+      <div class="rated-books-column">
+        <h3>My book ratings</h3>
+        <div class="sort-container">
+          <select id="sort-ratings">
+            <option value="">Sort by</option>
+            <option value="title_asc">Title (A-Z)</option>
+            <option value="title_desc">Title (Z-A)</option>
+            <option value="rating_desc">Rating (High-Low)</option>
+            <option value="rating_asc">Rating (Low-High)</option>
+          </select>
+        </div>
+        <ul id="ratings-books-list" class="ratings-list"></ul>
+      </div>
     </div>
-    <ul id="saved-books-list"></ul>
-    <ul id="ratings-books-list"></ul>
   `;
-  setWelcome(user.username);
+
   const bookList = document.querySelector("#saved-books-list");
   const ratingsBookList = document.querySelector("#ratings-books-list");
 
-  user.bookRatings.forEach(async (userBookRating) => {
-    let rating = await getBookRating(userBookRating.id);
-    if (!rating) {
-      return;
-    }
+  if (!user.bookRatings || user.bookRatings.length === 0) {
+    ratingsBookList.innerHTML =
+      "<p class='empty-list-message'>You haven't rated any books yet</p>";
+  } else {
+    for (const userBookRating of user.bookRatings) {
+      const rating = await getBookRating(userBookRating.id);
+      if (!rating) continue;
 
-    const bookId = rating.book.id;
-    let bookObject = await getBook(bookId);
+      const bookData = rating.book;
+      const bookItem = document.createElement("li");
 
-    const bookDiv = document.createElement("div");
-    bookDiv.className = "book-rating-user";
-    bookDiv.dataset.id = bookObject.id;
-    bookDiv.dataset.title = bookObject.title;
-    bookDiv.dataset.author = bookObject.author;
+      bookItem.dataset.id = bookData.id;
+      bookItem.dataset.title = bookData.title;
+      bookItem.dataset.author = bookData.author;
+      bookItem.dataset.rating = rating.rating;
+      bookItem.className = "rating-list-item";
 
-    bookDiv.innerHTML = `
-      <div class="rating-container">
-    
-      <h3 class="book-name">${bookObject.title}</h3>
-      <h4 class="book-author">${bookObject.author}</h4>
-      <p class="book-rating">Your Rating:
-         <span class="stars" data-id="${bookObject.id}">
-          ${[1, 2, 3, 4, 5]
-            .map(
-              (value) =>
-                `<i class="fa-${
-                  value <= rating.rating ? "solid" : "regular"
-                } fa-star" data-value="${value}"></i>`
-            )
-            .join("")}
-        </span>
-      </p>
-     </div>
+      let starsHtml = "";
+      for (let i = 1; i <= 5; i++) {
+        starsHtml += `<i class="fa-${
+          i <= rating.rating ? "solid" : "regular"
+        } fa-star"></i>`;
+      }
+
+      bookItem.innerHTML = `
+      <span class="book-title">${bookData.title}</span>
+      <span class="book-rating">${rating.rating}/5</span>
     `;
-    ratingsBookList.appendChild(bookDiv);
-  });
+
+      ratingsBookList.appendChild(bookItem);
+    }
+  }
 
   user.savedBooks.forEach(async (book) => {
     if (!user.savedBooks || user.savedBooks.length === 0) {
       bookList.innerHTML = "<p>No saved books</p>";
       return;
-      bookList.appendChild(li);
     }
     let bookObject = await getBook(book.id);
 
-    const bookDiv = document.createElement("div");
+    const bookDiv = document.createElement("li");
     bookDiv.className = "book-item";
     bookDiv.dataset.id = bookObject.id;
     bookDiv.dataset.title = bookObject.title;
@@ -599,24 +601,55 @@ async function renderProfile() {
     const sortBy = e.target.value;
     const listItems = Array.from(bookList.children);
 
+    if (!sortBy) return;
+
+    const [field, direction] = sortBy.split("_");
+    const isAsc = direction === "asc";
+
     listItems.sort((a, b) => {
-      if (sortBy === "rating") {
+      if (field === "rating") {
         const starsA = a.querySelector(".stars");
         const starsB = b.querySelector(".stars");
 
         const ratingA = starsA ? countSolidStars(starsA) : 0;
         const ratingB = starsB ? countSolidStars(starsB) : 0;
 
-        return ratingB - ratingA;
+        return isAsc ? ratingA - ratingB : ratingB - ratingA;
       } else {
-        const textA = a.dataset[sortBy].toLowerCase();
-        const textB = b.dataset[sortBy].toLowerCase();
-        return textA.localeCompare(textB);
+        const textA = a.dataset[field].toLowerCase();
+        const textB = b.dataset[field].toLowerCase();
+        return isAsc ? textA.localeCompare(textB) : textB.localeCompare(textA);
       }
     });
 
     bookList.innerHTML = "";
     listItems.forEach((item) => bookList.appendChild(item));
+  });
+
+  document.querySelector("#sort-ratings").addEventListener("change", (e) => {
+    const sortBy = e.target.value;
+    const listItems = Array.from(ratingsBookList.children);
+
+    if (!sortBy) return;
+
+    const [field, direction] = sortBy.split("_");
+    const isAsc = direction === "asc";
+
+    listItems.sort((a, b) => {
+      if (field === "rating") {
+        const ratingA = parseInt(a.dataset.rating) || 0;
+        const ratingB = parseInt(b.dataset.rating) || 0;
+
+        return isAsc ? ratingA - ratingB : ratingB - ratingA;
+      } else {
+        const textA = a.dataset[field].toLowerCase();
+        const textB = b.dataset[field].toLowerCase();
+        return isAsc ? textA.localeCompare(textB) : textB.localeCompare(textA);
+      }
+    });
+
+    ratingsBookList.innerHTML = "";
+    listItems.forEach((item) => ratingsBookList.appendChild(item));
   });
 
   document.querySelectorAll(".fa-heart").forEach((heartIcon) => {
@@ -649,7 +682,6 @@ async function renderProfile() {
       }
 
       try {
-        // Get the current user information
         const userData = await getMe();
 
         if (!userData) {
@@ -657,9 +689,8 @@ async function renderProfile() {
           return;
         }
 
-        // Send the rating with proper relations to Strapi
         await axios.post(
-          `${BASE_URL}/api/book-ratings`, // Use the correct collection endpoint
+          `${BASE_URL}/api/book-ratings`,
           {
             data: {
               rating: rating,
@@ -672,7 +703,6 @@ async function renderProfile() {
           { headers: { Authorization: `Bearer ${token}` } }
         );
 
-        // Update the UI to show the selected stars
         const starsContainer = e.target.closest(".stars");
         starsContainer.querySelectorAll("i").forEach((star, index) => {
           if (index < rating) {
@@ -683,8 +713,6 @@ async function renderProfile() {
             star.classList.add("fa-regular");
           }
         });
-
-        alert(`You rated this book ${rating} stars!`);
       } catch (error) {
         console.error("Error submitting rating:", error);
         alert("Failed to submit rating.");
@@ -705,7 +733,7 @@ function backToBooks(userData) {
     bookIcon.className = "fa-solid fa-book book-icon fa-xl theme-icon";
 
     const bookText = document.createElement("span");
-    bookText.textContent = "View All Books";
+    bookText.textContent = "All Books";
     bookText.className = "book-text";
 
     bookIconContainer.appendChild(bookIcon);
@@ -751,7 +779,6 @@ async function getBookRating(bookRatingId) {
     if (response.data.data && response.data.data.length > 0) {
       return response.data.data[0];
     } else {
-      console.error("Book rating not found");
       return null;
     }
   } catch (error) {
@@ -775,7 +802,6 @@ async function getBook(bookId) {
       }
     );
 
-    // Extract the first book from the data array
     if (response.data.data && response.data.data.length > 0) {
       return response.data.data[0];
     } else {
@@ -843,7 +869,6 @@ async function removeSavedBooks(userId, bookIds) {
     return response.data;
   } catch (error) {
     console.error("Error removing saved books:", error);
-    alert("Failed to remove books from saved list.");
     return null;
   }
 }

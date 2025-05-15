@@ -13,7 +13,7 @@ body {
   color: var(--main-text-color);
 }
 :root {
-  --main-bg-color: #fffef7;
+  --main-bg-color: #fceeee;
   --main-text-color: #373636;
   --main-logo-color: #5e716a;
   --main-container-color: #f2ddbe;
@@ -346,4 +346,67 @@ a:hover {
 
 .rating-container {
   padding: 1rem;
+}
+.profile-columns {
+  display: flex;
+  gap: 30px;
+  margin-top: 20px;
+}
+
+.saved-books-column,
+.rated-books-column {
+  flex: 1;
+  background-color: var(--main-bg-color);
+  border-radius: 10px;
+  padding: 15px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.saved-books-column h3,
+.rated-books-column h3 {
+  color: var(--main-logo-color);
+  margin-bottom: 15px;
+  text-align: center;
+  font-size: 1.5rem;
+}
+
+.books-list,
+.ratings-list {
+  list-style-type: none;
+  padding: 0;
+}
+
+.rating-list-item {
+  padding: 10px;
+  margin-bottom: 8px;
+  border-bottom: 1px solid var(--main-container-color);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.sort-container {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 10px;
+}
+
+.sort-container select {
+  border: none;
+  border-radius: 5px;
+  padding: 5px 10px;
+  font-family: var(--main-font-family);
+  cursor: pointer;
+}
+
+.empty-list-message {
+  text-align: center;
+  font-style: italic;
+  color: #888;
+  padding: 20px 0;
+}
+
+/* Make all star ratings gold */
+.fa-solid.fa-star {
+  color: gold;
 }

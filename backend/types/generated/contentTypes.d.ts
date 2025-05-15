@@ -378,7 +378,7 @@ export interface ApiBookRatingBookRating extends Struct.CollectionTypeSchema {
     singularName: 'book-rating';
   };
   options: {
-    draftAndPublish: true;
+    draftAndPublish: false;
   };
   attributes: {
     book: Schema.Attribute.Relation<'manyToOne', 'api::book.book'>;
@@ -412,7 +412,7 @@ export interface ApiBookBook extends Struct.CollectionTypeSchema {
     singularName: 'book';
   };
   options: {
-    draftAndPublish: true;
+    draftAndPublish: false;
   };
   attributes: {
     author: Schema.Attribute.String;
@@ -451,7 +451,7 @@ export interface ApiThemeSettingThemeSetting extends Struct.SingleTypeSchema {
     singularName: 'theme-setting';
   };
   options: {
-    draftAndPublish: true;
+    draftAndPublish: false;
   };
   attributes: {
     createdAt: Schema.Attribute.DateTime;
