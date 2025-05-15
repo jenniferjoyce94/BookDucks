@@ -62,7 +62,6 @@ async function changeTheme() {
 
     const logos = document.querySelectorAll(".theme-logo");
     logos.forEach((logo) => {
-      logo.style.opacity = "0";
       logo.style.display = "none";
     });
 
