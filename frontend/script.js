@@ -41,6 +41,42 @@ function setWelcome(username) {
     }`;
   }
 }
+
+async function changeTheme() {
+  try {
+    const response = await axios.get(`${BASE_URL}/api/theme-setting`);
+    const theme = response.data.data.theme;
+
+    document.documentElement.setAttribute("data-theme", theme);
+    console.log(`Theme set to ${theme}`);
+
+    const logos = document.querySelectorAll(".theme-logo");
+    logos.forEach((logo) => {
+      logo.style.opacity = "0";
+      logo.style.display = "none";
+    });
+
+    const currentLogo = document.querySelector(`.${theme}-logo`);
+    if (currentLogo) {
+      currentLogo.style.display = "block";
+    }
+  } catch (error) {
+    console.error("Error fetching theme settings:", error);
+    document.documentElement.setAttribute("data-theme", "default");
+
+    const logos = document.querySelectorAll(".theme-logo");
+    logos.forEach((logo) => {
+      logo.style.opacity = "0";
+      logo.style.display = "none";
+    });
+
+    const defaultLogo = document.querySelector(".default-logo");
+    if (defaultLogo) {
+      defaultLogo.style.display = "block";
+    }
+    console.log("Default theme applied.");
+  }
+}
 // ------------------------Authorization------------------------
 async function loginUser(username, password) {
   try {
@@ -747,6 +783,7 @@ async function removeSavedBooks(userId, bookIds) {
 }
 
 document.addEventListener("DOMContentLoaded", async () => {
+  await changeTheme();
   const token = getToken();
   if (token) {
     try {
