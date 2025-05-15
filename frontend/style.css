@@ -13,7 +13,7 @@ body {
   color: var(--main-text-color);
 }
 :root {
-  --main-bg-color: #fffef7;
+  --main-bg-color: #fceeee;
   --main-text-color: #373636;
   --main-logo-color: #5e716a;
   --main-container-color: #f2ddbe;
@@ -31,6 +31,11 @@ body {
   --main-text-color: #f4bb37;
   --main-logo-color: #b20000;
   --main-container-color: #175401;
+}
+
+.default-logo {
+  display: block;
+  opacity: 1;
 }
 
 [data-theme="default"] .default-logo {
@@ -60,11 +65,22 @@ body {
   opacity: 0;
 }
 
+.theme-icon {
+  color: #000;
+}
+
+[data-theme="halloween"] .theme-icon {
+  color: #ffffff;
+}
+
+[data-theme="christmas"] .theme-icon {
+  color: var(--main-logo-color);
+}
+
 .header {
   display: flex;
   justify-content: space-around;
   background-color: var(--main-container-color);
-  height: 9.5rem;
 }
 
 .header-container {
@@ -75,10 +91,17 @@ body {
 h1 {
   font-size: 3rem;
   color: var(--main-logo-color);
-  margin-top: 10px;
 }
-h2 {
-  font-style: italic;
+.search-container {
+  position: relative;
+  min-width: 600px;
+}
+.search-icon {
+  position: absolute;
+  right: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--button-blue);
 }
 
 .logout-icon {
@@ -98,7 +121,7 @@ h2 {
   background-color: var(--main-bg-color);
   border-radius: 10px;
   margin: 20px;
-  max-width: 240px;
+  width: 220px;
   height: 400px;
   padding: 10px;
   box-shadow: gray 0px 0px 10px;
@@ -146,6 +169,7 @@ img {
   border: none;
   padding: 5px;
   cursor: pointer;
+  margin-left: 5%;
 }
 .buy-button:hover {
   background-color: var(--main-logo-color);
@@ -180,11 +204,9 @@ img {
   border: none;
   font-size: var(--main-font-size);
   cursor: pointer;
-  border-radius: 5px;
   display: flex;
   align-items: center;
 }
-
 .close-modal-btn,
 .login-btn-modal {
   cursor: pointer;
@@ -320,4 +342,71 @@ a {
 }
 a:hover {
   text-decoration: underline;
+}
+
+.rating-container {
+  padding: 1rem;
+}
+.profile-columns {
+  display: flex;
+  gap: 30px;
+  margin-top: 20px;
+}
+
+.saved-books-column,
+.rated-books-column {
+  flex: 1;
+  background-color: var(--main-bg-color);
+  border-radius: 10px;
+  padding: 15px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.saved-books-column h3,
+.rated-books-column h3 {
+  color: var(--main-logo-color);
+  margin-bottom: 15px;
+  text-align: center;
+  font-size: 1.5rem;
+}
+
+.books-list,
+.ratings-list {
+  list-style-type: none;
+  padding: 0;
+}
+
+.rating-list-item {
+  padding: 10px;
+  margin-bottom: 8px;
+  border-bottom: 1px solid var(--main-container-color);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.sort-container {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 10px;
+}
+
+.sort-container select {
+  border: none;
+  border-radius: 5px;
+  padding: 5px 10px;
+  font-family: var(--main-font-family);
+  cursor: pointer;
+}
+
+.empty-list-message {
+  text-align: center;
+  font-style: italic;
+  color: #888;
+  padding: 20px 0;
+}
+
+/* Make all star ratings gold */
+.fa-solid.fa-star {
+  color: gold;
 }

@@ -14,18 +14,19 @@
     <header class="header">
       <a href="index.html" class="logo-container">
         <img src="./images/BookDuck.png" alt="BookDuck Logo" class="theme-logo default-logo" width="150px" height="150px" />
-      
         <img src="./images/halloween-duck.png" alt="Halloween BookDuck" class="theme-logo halloween-logo" width="150px" height="150px" />
-     
         <img src="./images/christmas-duck.png" alt="Christmas BookDuck" class="theme-logo christmas-logo" width="150px" height="150px" />
       </a>
       <div class="header-container">
         <h1>Book Duck</h1>
-        <h2> Your Next Great Read Starts Here</h2>
+        <!-- <h2> Your Next Great Read Starts Here</h2> -->
+        <div class="search-container">
+          <input type="text" placeholder="Search..." class="search-input" />
+        </div>
       </div>
       <div class="login">
         <button id="open-modal-btn">
-          <i class="fa-regular fa-user fa-xl" style="color: #000000;"></i>
+          <i class="fa-regular fa-user fa-xl theme-icon"></i>
           <span id="login-text">Log in</span>
         </button>
       </div>
@@ -45,7 +46,7 @@
       <div id="createAccountModal" class="modal hide">
         <div class="modal-content">
           <span id="closeCreateAccountModal" class="close">&times;</span>
-          <h3>Register new user</h3>
+          <h3>Register New User</h3>
           <form id="createAccountForm">
             <input type="text" id="new-username" name="new-username" required placeholder="username" />
             <input type="email" id="new-email" name="new-email" required placeholder="email" />
